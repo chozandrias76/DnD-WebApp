@@ -5,5 +5,5 @@ require('./stylesheets/styles.scss');
 
 ReactDOM.render(
   <Client />,
-  document.body.appendChild(document.createElement('div'))
+  document.getElementById("react-entry")
 );
