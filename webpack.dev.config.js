@@ -4,10 +4,7 @@ const webpack = require('webpack')
 module.exports = {
     devtool: 'eval',
 
-    entry: [
-        './src/index.js'
-    ],
-
+    entry: "./public/main.jsx",
     output: {
         path: path.join(__dirname, 'public'),
         filename: "bundle.js",
@@ -25,7 +22,7 @@ module.exports = {
                 loader: 'babel',
                 exclude: path.join(__dirname, 'node_modules'),
                 query: {
-                    presets: ['es2015', 'react']
+                    presets: ['react', 'es2015']
                 }
             },
             {
