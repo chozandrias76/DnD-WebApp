@@ -1,19 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+var React = require('react');
+var ReactDOM = require('react-dom');
 
-// import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'; import
-// injectTapEventPlugin from 'react-tap-event-plugin'; // Needed for onTouchTap
-// // http://stackoverflow.com/a/34015469/988941 injectTapEventPlugin();
-
-import {Grid, Row, Col, code, Button} from 'react-bootstrap';
-import {Link, Route, Redirect, Router, browserHistory} from 'react-router';
-import CreateCharacter from './components/createCharacter.jsx';
+var ReactBootstrap = require('react-bootstrap')
+var ReactRouter = require('react-router')
+var CreateCharacter = require('./components/createCharacter.jsx');
 
 // import Client from './components/client.jsx';
 require('./stylesheets/styles.scss');
 
-class NoMatch extends React.Component {
-    render() {
+var NoMatch = React.createClass(({
+    render: function () {
         return (
             <div>
                 <h3>404 page not found</h3>
@@ -21,26 +17,26 @@ class NoMatch extends React.Component {
             </div>
         );
     }
-}
+}))
 
-class MainComponent extends React.Component {
-    render() {
+var MainComponent = React.createClass(({
+    render: function () {
         return (
-            <Grid>
-                <Row className="show-grid" id="body-header">
-                    <Col xs={6} md={4}></Col>
-                    <Col xs={6} md={4}>
+            <ReactBootstrap.Grid>
+                <ReactBootstrap.Row className="show-grid" id="body-header">
+                    <ReactBootstrap.Col xs={6} md={4}></ReactBootstrap.Col>
+                    <ReactBootstrap.Col xs={6} md={4}>
                         <h1
                             style={{
                             color: 'green',
                             textAlign: 'center'
                         }}>Welcome!</h1>
-                    </Col>
-                    <Col xsHidden md={4}></Col>
-                </Row>
-                <Row className="show-grid" id="body-main">
-                    <Col xs={6} md={6}>
-                        <Link
+                    </ReactBootstrap.Col>
+                    <ReactBootstrap.Col xsHidden md={4}></ReactBootstrap.Col>
+                </ReactBootstrap.Row>
+                <ReactBootstrap.Row className="show-grid" id="body-main">
+                    <ReactBootstrap.Col xs={6} md={6}>
+                        <ReactRouter.Link
                             className="btn btn-large btn-primary btn-block"
                             role="button"
                             style={{
@@ -51,10 +47,10 @@ class MainComponent extends React.Component {
                             pathname: 'http://localhost:8080/public/characters'
                         }}>
                             Load a Character
-                        </Link>
-                    </Col>
-                    <Col xs={6} md={6}>
-                        <Link
+                        </ReactRouter.Link>
+                    </ReactBootstrap.Col>
+                    <ReactBootstrap.Col xs={6} md={6}>
+                        <ReactRouter.Link
                             className="btn btn-large btn-primary btn-block"
                             role="button"
                             style={{
@@ -65,21 +61,21 @@ class MainComponent extends React.Component {
                             pathname: 'http://localhost:8080/public/characters/new'
                         }}>
                             Create A Character
-                        </Link>
-                    </Col>
-                </Row>
-            </Grid>
+                        </ReactRouter.Link>
+                    </ReactBootstrap.Col>
+                </ReactBootstrap.Row>
+            </ReactBootstrap.Grid>
         );
     }
-}
+}))
 
 ReactDOM.render((
-    <Router history={browserHistory}>
-        <Route path="/" component="">
-            <Redirect from="/" to="/public/"/>
-            <Route path="public" component={MainComponent}>
-                <Route path="characters" component={CreateCharacter}/>
-            </Route>
-        </Route>
-    </Router>
+    <ReactRouter.Router history={ReactRouter.browserHistory}>
+        <ReactRouter.Route path="/">
+            <ReactRouter.Redirect from="/" to="/public/"/>
+            <ReactRouter.Route path="public" component={MainComponent}>
+                <ReactRouter.Route path="characters" component={CreateCharacter}/>
+            </ReactRouter.Route>
+        </ReactRouter.Route>
+    </ReactRouter.Router>
 ), document.getElementById('react-entry'));

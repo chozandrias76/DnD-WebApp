@@ -1,16 +1,17 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+var React = require('react');
+var ReactDOM = require('react-dom');
 
-import {} from 'react-bootstrap';
-import {} from 'react-router';
+var ReactBootstrap = require('react-bootstrap')
+var ReactRouter = require('react-router')
 
-class CreateCharacter extends React.Component {
-    render() {
-        return (
+
+var CreateCharacter = React.createClass(({
+    render: function(){
+         return (
         <div>
         </div>
         );
     }
-}
-
-export default CreateCharacter;
+}))
+   
+module.exports = CreateCharacter;

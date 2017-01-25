@@ -26,7 +26,7 @@ module.exports = {
                 loader: 'babel',
                 exclude: path.join(__dirname, 'node_modules'),
                 query: {
-                    presets: ['react', 'es2015']
+                    presets: ['stage-0', 'react', 'es2015']
                 }
             },
 

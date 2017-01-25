@@ -1,16 +1,14 @@
-const path = require('path')
+var path = require('path');
 const webpack = require('webpack')
 
 module.exports = {
-    devtool: 'eval',
-
     entry: "./public/main.jsx",
     output: {
         path: path.join(__dirname, 'public'),
         filename: "bundle.js",
         publicPath: '/public/'
     },
-
+    devServer: { inline: true },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoErrorsPlugin()
@@ -19,12 +17,19 @@ module.exports = {
     module: {
         loaders: [{
                 test: /\.jsx?$/,
+                loader: 'react-hot',
+                exclude: path.join(__dirname, 'node_modules'),
+
+            },
+            {
+                test: /\.jsx?$/,
                 loader: 'babel',
                 exclude: path.join(__dirname, 'node_modules'),
                 query: {
-                    presets: ['react', 'es2015']
+                    presets: ['stage-0', 'react', 'es2015']
                 }
             },
+
             {
                 test: /\.css$/,
                 loaders: ["css-loader", "style-loader"]
@@ -45,4 +50,4 @@ module.exports = {
     sassLoader: {
         includePaths: [path.resolve(__dirname, "./stylesheets")]
     }
-}
+};
