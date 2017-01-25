@@ -5,8 +5,7 @@ module.exports = {
     devtool: 'eval',
 
     entry: [
-        'webpack-hot-middleware/client',
-        './src/index'
+        './src/index.js'
     ],
 
     output: {
@@ -22,14 +21,19 @@ module.exports = {
 
     module: {
         loaders: [{
-                test: /\.js?$/,
+                test: /\.jsx?$/,
                 loader: 'babel',
-                exclude: path.join(__dirname, 'node_modules')
+                exclude: path.join(__dirname, 'node_modules'),
+                query: {
+                    presets: ['es2015', 'react']
+                }
             },
             {
-                test: /\.scss?$/,
-                loader: 'style!css!sass',
-                include: path.join(__dirname, 'src', 'styles')
+                test: /\.css$/,
+                loaders: ["css-loader", "style-loader"]
+            }, {
+                test: /\.scss$/,
+                loaders: ["style-loader", "css-loader", "sass-loader"]
             },
             {
                 test: /\.png$/,
@@ -40,5 +44,8 @@ module.exports = {
                 loader: 'file'
             }
         ]
+    },
+    sassLoader: {
+        includePaths: [path.resolve(__dirname, "./stylesheets")]
     }
 }
