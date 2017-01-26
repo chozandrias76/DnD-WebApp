@@ -44,13 +44,10 @@ const Character = React.createClass(({
                 []
                     .forEach
                     .call(elementsToSave, function (e) {
-                        Object.defineProperty(compiledJson.characterData, e.id, {value: e.value});
-                        //console.log(compiledJson.characterData[e.id])
+                        compiledJson.characterData[e.id] = e.value;
                     });
                 var allCharacters = JSON.parse(localStorage.getItem("characters"));
                 allCharacters.push(compiledJson);
-                console.log(allCharacters[0].characterData);
-                console.log(JSON.stringify(allCharacters[0].characterData));
                 localStorage.setItem("characters", JSON.stringify(allCharacters));
             }
             return (
@@ -540,8 +537,8 @@ const Character = React.createClass(({
                 console.log(character);
                 characterRows.push(
                     <tr key={character.guid}>
-                        <td>{character['name-field']}</td>
-                        <td>{character['level-dropdown']}</td>
+                        <td>{character.characterData['name-field']}</td>
+                        <td>{character.characterData['level-dropdown']}</td>
                     </tr>
                 );
             })
