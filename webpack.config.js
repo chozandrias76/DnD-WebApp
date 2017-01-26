@@ -7,8 +7,13 @@ module.exports = {
         path: path.join(__dirname, 'public'),
         filename: "bundle.js",
         publicPath: '/public/'
+
     },
-    devServer: { inline: true },
+    devServer: {
+        inline: true,
+        contentBase: "./public",
+        hot: true
+    },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoErrorsPlugin()
@@ -26,7 +31,7 @@ module.exports = {
                 loader: 'babel',
                 exclude: path.join(__dirname, 'node_modules'),
                 query: {
-                    presets: ['stage-0', 'react', 'es2015']
+                    presets: ['react']
                 }
             },
 
