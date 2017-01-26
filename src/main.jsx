@@ -25,11 +25,7 @@ const MainComponent = React.createClass(({
                 <Row className="show-grid" id="body-header">
                     <Col xs={6} md={4}></Col>
                     <Col xs={6} md={4}>
-                        <h1
-                            style={{
-                            color: 'green',
-                            textAlign: 'center'
-                        }}>Welcome!</h1>
+                        <h1>Welcome!</h1>
                     </Col>
                     <Col xsHidden md={4}></Col>
                 </Row>

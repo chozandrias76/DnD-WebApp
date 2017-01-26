@@ -1,13 +1,21 @@
-//@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
 body {
-    background-color: #232329;
+    background-color: #69696b;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #body-header {
     padding: 100px;
-    color: 'green';
+    color: #1c3f6d;
     text-align: center;
+}
+
+.character-forum-description {
+    float: right;
+}
+
+#character-sheet-body {
+    //max-width: 80%;
 }
 
 .descriptor-container {
