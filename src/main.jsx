@@ -6,7 +6,7 @@ var ReactRouter = require('react-router')
 var CreateCharacter = require('./components/createCharacter.jsx');
 
 // import Client from './components/client.jsx';
-require('./stylesheets/styles.scss');
+require("!style-loader!css-loader!sass-loader!../stylesheets/styles.scss")
 
 var NoMatch = React.createClass(({
     render: function () {
@@ -44,7 +44,7 @@ var MainComponent = React.createClass(({
                             fontSize: '20px'
                         }}
                             to={{
-                            pathname: 'http://localhost:8080/public/characters'
+                            pathname: '/characters'
                         }}>
                             Load a Character
                         </ReactRouter.Link>
@@ -58,7 +58,7 @@ var MainComponent = React.createClass(({
                             fontSize: '20px'
                         }}
                             to={{
-                            pathname: 'http://localhost:8080/public/characters/new'
+                            pathname: '/characters/new'
                         }}>
                             Create A Character
                         </ReactRouter.Link>
@@ -71,11 +71,8 @@ var MainComponent = React.createClass(({
 
 ReactDOM.render((
     <ReactRouter.Router history={ReactRouter.browserHistory}>
-        <ReactRouter.Route path="/">
-            <ReactRouter.Redirect from="/" to="/public/"/>
-            <ReactRouter.Route path="public" component={MainComponent}>
-                <ReactRouter.Route path="characters" component={CreateCharacter}/>
-            </ReactRouter.Route>
+        <ReactRouter.Route path="/" component={MainComponent}>
+            <ReactRouter.Route path="/characters/new" component={CreateCharacter}/>
         </ReactRouter.Route>
     </ReactRouter.Router>
 ), document.getElementById('react-entry'));

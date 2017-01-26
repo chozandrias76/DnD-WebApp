@@ -9,9 +9,10 @@ var CreateCharacter = React.createClass(({
     render: function(){
          return (
         <div>
+             Create that character, eh!
         </div>
         );
     }
 }))
-   
+
 module.exports = CreateCharacter;
