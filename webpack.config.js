@@ -1,40 +1,48 @@
 var path = require('path');
-const webpack = require('webpack')
+
+var webpack = require('webpack')
 
 module.exports = {
-    entry: "./public/main.jsx",
+    /* Generate source-maps for browser side debugging */
+    devtool: "source-map",
+
+    /* Entry file to start building from. This is where you will want to start
+     * your project.  If you wanted to build multiple entry points you could
+     * list them below.
+     */
+    entry: {
+        main: "./src/main.jsx"
+    },
+
+    /* Defines where to output the final built files. The [name] definition
+     * is based off of the entry point's name. This example will generate
+     * a main.bundle.js in the public/build directory.
+     */
     output: {
-        path: path.join(__dirname, 'public'),
-        filename: "bundle.js",
-        publicPath: '/public/'
-
+        path: path.resolve(__dirname, "public/build"),
+        filename: "[name].bundle.js",
+        publicPath: "/public/build/",
     },
-    devServer: {
-        inline: true,
-        contentBase: "./public",
-        hot: true
-    },
-    plugins: [
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.NoErrorsPlugin()
-    ],
 
+    resolve: {
+        /* Defines where it can load modules from. Since we've installed our
+         * JS dependencies through npm, it can look in the node_modules
+         * directory. If you use bower, you can add 'bower_components'
+         * to the list.
+         */
+        modulesDirectories: ['node_modules'],
+        /* List extensions to load in require() statements. The '' entry
+         * is needed to allow you to require src/main.jsx as require('src/main.jsx')
+         */
+        extensions: ['', '.js', '.jsx']
+    },
+
+    /* Defines what modules to use */
     module: {
         loaders: [{
-                test: /\.jsx?$/,
-                loader: 'react-hot',
-                exclude: path.join(__dirname, 'node_modules'),
-
+                test: /\.jsx$/,
+                loader: "jsx-loader"
             },
-            {
-                test: /\.jsx?$/,
-                loader: 'babel',
-                exclude: path.join(__dirname, 'node_modules'),
-                query: {
-                    presets: ['react']
-                }
-            },
-
             {
                 test: /\.css$/,
                 loaders: ["css-loader", "style-loader"]
@@ -52,7 +60,10 @@ module.exports = {
             }
         ]
     },
+
     sassLoader: {
         includePaths: [path.resolve(__dirname, "./stylesheets")]
-    }
+    },
+
+    devServer: { inline: true, progress: true }
 };

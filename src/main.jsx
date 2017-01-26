@@ -5,8 +5,7 @@ const {Grid, Row, Col} = require('react-bootstrap')
 const {Link, Router, Route, browserHistory} = require('react-router')
 const CharacterComponent = require('./components/character/character.jsx');
 
-// import Client from './components/client.jsx';
-require('./stylesheets/styles.scss');
+require("!style-loader!css-loader!sass-loader!./stylesheets/styles.scss")
 
 const NoMatch = React.createClass(({
     render: function () {
@@ -71,7 +70,7 @@ const MainComponent = React.createClass(({
 
 ReactDOM.render((
     <Router history={browserHistory}>
-        <Route path="/"  component={MainComponent}/>
+        <Route path="/public"  component={MainComponent}/>
         <Route path="characters" component={CharacterComponent}>
             <Route path=":subroute" component={CharacterComponent}/>
         </Route>
