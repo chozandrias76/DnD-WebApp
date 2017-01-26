@@ -12,52 +12,47 @@ const {
     Col,
     InputGroup,
     Button,
-    Well
+    Well,
+    Table,
+    thead,
+    tbody
 } = require('react-bootstrap')
 
 const {Link} = require('react-router')
 
 const Character = React.createClass(({
 
-    componentDidMount() {
-        // When the component is mounted, grab a reference and add a DOM listener;
-        var saveButton = document.getElementById('save-button');
-        ReactDOM.findDOMNode()
-        addEventListener(saveButton, 'click', function () {
-            var elementsToSave = document.getElementsByClassName('character-sheet-field');
-            console.log(elementsToSave);
-        })
-    },
+    componentDidMount() {},
     renderContent(subroute) {
-        function saveClicked() {
-            var jsonElements = [];
-            var compiledJson = {};
-            var elementsToSave = document.getElementsByClassName('character-sheet-field');
-            []
-                .forEach
-                .call(elementsToSave, function (e) {
-                    var obj = {}
-                    obj.name = e.id;
-                    obj.value = e.value;
-                    obj.guid = guid();
-                    jsonElements.push(obj);
 
-                });
-                function guid() {
-                        return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-                    }
-
-                    function s4() {
-                        return Math.floor((1 + Math.random()) * 0x10000)
-                            .toString(16)
-                            .substring(1);
-                    }
-                    compiledJson.characterData = jsonElements;
-                    compiledJson.guid = guid();
-            console.log(compiledJson);
-            localStorage.setItem(`characterID: ${compiledJson.guid}`, compiledJson);
-        }
         if (subroute == "new") {
+            function saveClicked() {
+                var jsonElements = [];
+                var compiledJson = {};
+                function guid() {
+                    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+                }
+
+                function s4() {
+                    return Math.floor((1 + Math.random()) * 0x10000)
+                        .toString(16)
+                        .substring(1);
+                }
+                compiledJson.guid = guid();
+                compiledJson.characterData = {}
+                var elementsToSave = document.getElementsByClassName('character-sheet-field');
+                []
+                    .forEach
+                    .call(elementsToSave, function (e) {
+                        Object.defineProperty(compiledJson.characterData, e.id, {value: e.value});
+                        //console.log(compiledJson.characterData[e.id])
+                    });
+                var allCharacters = JSON.parse(localStorage.getItem("characters"));
+                allCharacters.push(compiledJson);
+                console.log(allCharacters[0].characterData);
+                console.log(JSON.stringify(allCharacters[0].characterData));
+                localStorage.setItem("characters", JSON.stringify(allCharacters));
+            }
             return (
                 <div>
                     <Grid
@@ -406,7 +401,7 @@ const Character = React.createClass(({
                                                         className="character-sheet-field"
                                                         componentClass="select"
                                                         placeholder="">
-                                                          <option value="1">1</option>
+                                                        <option value="1">1</option>
                                                         <option value="2">2</option>
                                                         <option value="3">3</option>
                                                         <option value="4">4</option>
@@ -419,7 +414,7 @@ const Character = React.createClass(({
                                                         className="character-sheet-field"
                                                         componentClass="select"
                                                         placeholder="">
-                                                       <option value="0">+0</option>
+                                                        <option value="0">+0</option>
                                                         <option value="1">+1</option>
                                                         <option value="2">+2</option>
                                                         <option value="3">+3</option>
@@ -538,8 +533,49 @@ const Character = React.createClass(({
                 <p>load</p>
             )
         } else if (subroute === undefined) {
+            var allCharacters = JSON.parse(localStorage.getItem("characters"));
+            var characterRows = [];
+                            //console.log(allCharacters);
+            allCharacters.forEach(function(character){
+                console.log(character);
+                characterRows.push(
+                    <tr key={character.guid}>
+                        <td>{character['name-field']}</td>
+                        <td>{character['level-dropdown']}</td>
+                    </tr>
+                );
+            })
             return (
-                <h1>character list</h1>
+                <div>
+                <Grid
+                        style={{
+                        padding: '50px',
+                        width: '100%'
+                    }}>
+                        <h1>Character List</h1>
+                            {/*Name entry field and label*/}
+                            <Row>
+                                <Col md={2}>
+                                </Col>
+                                <Col md={8}>
+                                    <Table striped bordered condensed hover>
+                        <thead>
+                            <tr>
+                                <th>Character Name</th>
+                                <th>Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {characterRows}
+                        </tbody>
+                    </Table>
+                                </Col>
+                                <Col md={2}>
+                                    
+                                </Col>
+                            </Row>
+                            </Grid>
+                </div>
             )
         } else {
             return (
