@@ -10,12 +10,16 @@ body {
     text-align: center;
 }
 
-.character-forum-description {
+.character-form-description {
     float: right;
 }
 
 #character-sheet-body {
     //max-width: 80%;
+}
+
+.character-sheet-row {
+    padding-top: 25px;
 }
 
 .descriptor-container {
