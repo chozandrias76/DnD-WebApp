@@ -533,6 +533,7 @@ const Character = React.createClass(({
             var allCharacters = JSON.parse(localStorage.getItem("characters"));
             var characterRows = [];
                             //console.log(allCharacters);
+                            if(allCharacters.length > 0)
             allCharacters.forEach(function(character){
                 console.log(character);
                 characterRows.push(
@@ -542,6 +543,13 @@ const Character = React.createClass(({
                     </tr>
                 );
             })
+            else{
+                characterRows.push(
+                    <tr key="none">
+                        <td>No characters created yet</td>
+
+                </tr>);
+            }
             return (
                 <div>
                 <Grid
