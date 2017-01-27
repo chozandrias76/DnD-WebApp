@@ -551,7 +551,6 @@ const Character = React.createClass(({
             //console.log(allCharacters);
             if (allCharacters.length > 0) 
                 allCharacters.forEach(function (character) {
-                    console.log(character);
                     characterRows.push(
                         <tr key={character.guid}>
                             <td>{character.data['name-field']}</td>

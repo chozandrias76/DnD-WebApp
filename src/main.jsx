@@ -2,7 +2,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 
 const {Grid, Row, Col} = require('react-bootstrap')
-const {Link, Router, Route, browserHistory} = require('react-router')
+const {Link, Router, Route, browserHistory, IndexRedirect} = require('react-router')
 const CharacterComponent = require('./components/character/character.jsx');
 
 require("!style-loader!css-loader!sass-loader!./stylesheets/styles.scss")
