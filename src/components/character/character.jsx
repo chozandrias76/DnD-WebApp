@@ -23,33 +23,49 @@ const {Link} = require('react-router')
 const Character = React.createClass(({
 
     componentDidMount() {},
+    saveCharacter() {
+        var characterList = JSON.parse(localStorage.getItem('characters'));
+        var fieldsToSave = document.getElementsByClassName('character-sheet-field');
+        var newCharacter = {};
+        newCharacter.data = {};
+
+        // 4-character generator
+        function generateFour() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        // Guid generator function
+        function generateGuid() {
+            var newGuid = [];
+            for (var i = 0; i < 7; i++) {
+                var nextPart = generateFour();
+                newGuid.push(nextPart);
+                if (i > 0 && i < 5) {
+                    newGuid.push('-');
+                }
+            }
+            return newGuid.join('');
+        }
+        // Iterator function for saving fields
+        function saveField(curr) {
+            newCharacter.data[curr.id] = curr.value;
+        }
+
+        newCharacter.guid = generateGuid();
+
+        []
+            .forEach
+            .call(fieldsToSave, function (e) {
+                saveField(e);
+            })
+
+        characterList.push(newCharacter);
+        localStorage.setItem("characters", JSON.stringify(characterList));
+    },
     renderContent(subroute) {
 
         if (subroute == "new") {
-            function saveClicked() {
-                var jsonElements = [];
-                var compiledJson = {};
-                function guid() {
-                    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-                }
-
-                function s4() {
-                    return Math.floor((1 + Math.random()) * 0x10000)
-                        .toString(16)
-                        .substring(1);
-                }
-                compiledJson.guid = guid();
-                compiledJson.characterData = {}
-                var elementsToSave = document.getElementsByClassName('character-sheet-field');
-                []
-                    .forEach
-                    .call(elementsToSave, function (e) {
-                        compiledJson.characterData[e.id] = e.value;
-                    });
-                var allCharacters = JSON.parse(localStorage.getItem("characters"));
-                allCharacters.push(compiledJson);
-                localStorage.setItem("characters", JSON.stringify(allCharacters));
-            }
             return (
                 <div>
                     <Grid
@@ -76,7 +92,7 @@ const Character = React.createClass(({
                                 <Col md={2}>
                                     {/*A button for saving the character sheet*/}
                                     <Link
-                                        onClick={saveClicked}
+                                        onClick={this.saveCharacter}
                                         id="save-button"
                                         className="btn btn-large btn-success"
                                         role="button">
@@ -532,54 +548,52 @@ const Character = React.createClass(({
         } else if (subroute === undefined) {
             var allCharacters = JSON.parse(localStorage.getItem("characters"));
             var characterRows = [];
-                            //console.log(allCharacters);
-                            if(allCharacters.length > 0)
-            allCharacters.forEach(function(character){
-                console.log(character);
-                characterRows.push(
-                    <tr key={character.guid}>
-                        <td>{character.characterData['name-field']}</td>
-                        <td>{character.characterData['level-dropdown']}</td>
-                    </tr>
-                );
-            })
-            else{
+            //console.log(allCharacters);
+            if (allCharacters.length > 0) 
+                allCharacters.forEach(function (character) {
+                    console.log(character);
+                    characterRows.push(
+                        <tr key={character.guid}>
+                            <td>{character.data['name-field']}</td>
+                            <td>{character.data['level-dropdown']}</td>
+                        </tr>
+                    );
+                })
+            else {
                 characterRows.push(
                     <tr key="none">
                         <td>No characters created yet</td>
 
-                </tr>);
+                    </tr>
+                );
             }
             return (
                 <div>
-                <Grid
+                    <Grid
                         style={{
                         padding: '50px',
                         width: '100%'
                     }}>
                         <h1>Character List</h1>
-                            {/*Name entry field and label*/}
-                            <Row>
-                                <Col md={2}>
-                                </Col>
-                                <Col md={8}>
-                                    <Table striped bordered condensed hover>
-                        <thead>
-                            <tr>
-                                <th>Character Name</th>
-                                <th>Level</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {characterRows}
-                        </tbody>
-                    </Table>
-                                </Col>
-                                <Col md={2}>
-                                    
-                                </Col>
-                            </Row>
-                            </Grid>
+                        {/*Name entry field and label*/}
+                        <Row>
+                            <Col md={2}></Col>
+                            <Col md={8}>
+                                <Table striped bordered condensed hover>
+                                    <thead>
+                                        <tr>
+                                            <th>Character Name</th>
+                                            <th>Level</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {characterRows}
+                                    </tbody>
+                                </Table>
+                            </Col>
+                            <Col md={2}></Col>
+                        </Row>
+                    </Grid>
                 </div>
             )
         } else {

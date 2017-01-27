@@ -10,14 +10,14 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap-theme.min.css"> -->
     <script>
         (function() {
-            localStorage.setItem("characters", JSON.stringify([]));
+            JSON.parse(localStorage.getItem('characters')) || localStorage.setItem("characters", JSON.stringify([]));
         }());
     </script>
 </head>
 
 <body>
     <div id="react-entry"></div>
-    <script type="text/javascript" src="build/main.bundle.js"></script>
+    <script type="text/javascript" src="../public/build/main.bundle.js"></script>
 </body>
 
 </html>

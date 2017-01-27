@@ -65,5 +65,18 @@ module.exports = {
         includePaths: [path.resolve(__dirname, "./stylesheets")]
     },
 
-    devServer: { inline: true, progress: true }
+    // historyApiFallback: {
+    //     rewrites: [
+    //         { from: /\./, to: '/' }
+    //     ]
+    // },
+
+    devServer: {
+        historyApiFallback: {
+            index: '/public/'
+        },
+        inline: true,
+        progress: true,
+
+    }
 };

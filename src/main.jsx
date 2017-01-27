@@ -66,9 +66,9 @@ const MainComponent = React.createClass(({
 
 ReactDOM.render((
     <Router history={browserHistory}>
-        <Route path="/public"  component={MainComponent}/>
-        <Route path="characters" component={CharacterComponent}>
-            <Route path=":subroute" component={CharacterComponent}/>
+        <Route path="public"  component={MainComponent}/>
+        <Route path="characters" component={CharacterComponent}/>
+        <Route path="characters/:subroute" component={CharacterComponent}>
         </Route>
     </Router>
 ), document.getElementById('react-entry'));
