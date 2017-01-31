@@ -1,32 +1,38 @@
 {
-    "name": "dnd-app",
-    "version": "1.0.0",
-    "description": "A web app to view and create DnD characters",
-    "scripts": {
-        "run": "webpack --inline --progress --colors"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/chozandrias76/DnD-WebApp.git"
-    },
-    "author": "colin swenson-healey",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/chozandrias76/DnD-WebApp/issues"
-    },
-    "homepage": "https://github.com/chozandrias76/DnD-WebApp#readme",
-    "dependencies": {
-        "css-loader": "^0.26.1",
-        "jsx-loader": "^0.13.2",
-        "node-sass": "^4.3.0",
-        "react": "^15.4.2",
-        "react-bootstrap": "^0.30.7",
-        "react-dom": "^15.4.2",
-        "react-router": "^3.0.2",
-        "sass-loader": "^4.1.1",
-        "style-loader": "^0.13.1",
-        "webpack": "^1.14.0",
-        "webpack-dev-server": "^1.16.2"
-    },
-    "devDependencies": {}
+  "name": "dnd-app",
+  "version": "1.0.0",
+  "description": "A web app to view and create DnD characters",
+  "scripts": {
+    "run": "webpack --inline --progress --colors"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chozandrias76/DnD-WebApp.git"
+  },
+  "author": "colin swenson-healey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chozandrias76/DnD-WebApp/issues"
+  },
+  "homepage": "https://github.com/chozandrias76/DnD-WebApp#readme",
+  "dependencies": {
+    "css-loader": "^0.26.1",
+    "jsx-loader": "^0.13.2",
+    "node-sass": "^4.3.0",
+    "react": "^15.4.2",
+    "react-bootstrap": "^0.30.7",
+    "react-dom": "^15.4.2",
+    "react-router": "^3.0.2",
+    "sass-loader": "^4.1.1",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2"
+  },
+  "devDependencies": {
+    "eslint": "^3.14.1",
+    "eslint-config-airbnb": "^14.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^3.0.2",
+    "eslint-plugin-react": "^6.9.0"
+  }
 }
