@@ -1,31 +1,33 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
+$body-color: #69696b;
+$body-header-color: #1c3f6d;
+
 body {
-    background-color: #69696b;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: $body-color;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-#body-header {
-    padding: 100px;
-    color: #1c3f6d;
-    text-align: center;
+body-header {
+  color: $body-header-color;
+  padding: 100px;
+  text-align: center;
 }
 
 .character-form-description {
-    float: right;
-}
-
-#character-sheet-body {
-    //max-width: 80%;
+  float: right;
 }
 
 .character-sheet-row {
-    padding-top: 25px;
+  padding-top: 25px;
 }
 
 .descriptor-container {
-    height: 100%;
-    float: right;
-    vertical-align: middle;
+  float: right;
+  height: 100%;
+  vertical-align: middle;
 }
 
-#body-main {}
+.front-navigation-buttons {
+  font-size: 20px;
+  padding: 10px;
+}

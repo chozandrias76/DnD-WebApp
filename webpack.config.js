@@ -1,5 +1,4 @@
 var path = require('path');
-
 var webpack = require('webpack')
 
 module.exports = {
@@ -62,7 +61,7 @@ module.exports = {
     },
 
     sassLoader: {
-        includePaths: [path.resolve(__dirname, "./stylesheets")]
+        includePaths: [path.resolve(__dirname, "src/stylesheets")]
     },
 
     // historyApiFallback: {

@@ -23,9 +23,9 @@ const {Link} = require('react-router')
 const Character = React.createClass(({
 
     componentDidMount() {},
-    saveCharacter() {
-        var characterList = JSON.parse(localStorage.getItem('characters'));
-        var fieldsToSave = document.getElementsByClassName('character-sheet-field');
+    saveCharacter() { //Our method for saving characters
+        var characterList = JSON.parse(localStorage.getItem('characters'));//We want to get the characters in localstorage and translate from a string to a javascript object
+        var fieldsToSave = document.getElementsByClassName('character-sheet-field');//This selector grabs all the elements on the page that are part of the character sheet
         var newCharacter = {};
         newCharacter.data = {};
 
@@ -35,7 +35,7 @@ const Character = React.createClass(({
                 .toString(16)
                 .substring(1);
         }
-        // Guid generator function
+        // Guid generator function. Not really needed but, good plan if the project expands
         function generateGuid() {
             var newGuid = [];
             for (var i = 0; i < 7; i++) {
@@ -53,19 +53,18 @@ const Character = React.createClass(({
         }
 
         newCharacter.guid = generateGuid();
-
+        //fieldsToSave not technically an array so we call the array method and apply the fields as though they were elements in an array
         []
             .forEach
             .call(fieldsToSave, function (e) {
                 saveField(e);
             })
-
+            //Add the new character to the list of characters and put them in local storage as strings
         characterList.push(newCharacter);
         localStorage.setItem("characters", JSON.stringify(characterList));
     },
-    renderContent(subroute) {
-
-        if (subroute == "new") {
+    renderContent(subroute) {//Right now this file handles all the subroutes for /characters
+        if (subroute == "new") {//If we are creating a new character
             return (
                 <div>
                     <Grid
@@ -545,11 +544,10 @@ const Character = React.createClass(({
             return (
                 <p>load</p>
             )
-        } else if (subroute === undefined) {
-            var allCharacters = JSON.parse(localStorage.getItem("characters"));
+        } else if (subroute === undefined) {//This is the default route for /characters with no subroute. Just display all the characters here
+            var allCharacters = JSON.parse(localStorage.getItem("characters")); //Grab all the characters from localstorage
             var characterRows = [];
-            //console.log(allCharacters);
-            if (allCharacters.length > 0) 
+            if (allCharacters.length > 0) //Render the characters only if there are actually some to render
                 allCharacters.forEach(function (character) {
                     characterRows.push(
                         <tr key={character.guid}>
@@ -558,7 +556,7 @@ const Character = React.createClass(({
                         </tr>
                     );
                 })
-            else {
+            else { //Render an empty row if we have no characters
                 characterRows.push(
                     <tr key="none">
                         <td>No characters created yet</td>
@@ -566,6 +564,7 @@ const Character = React.createClass(({
                     </tr>
                 );
             }
+            //No matter what the contents of local storage is, render a header for the table
             return (
                 <div>
                     <Grid
@@ -574,7 +573,7 @@ const Character = React.createClass(({
                         width: '100%'
                     }}>
                         <h1>Character List</h1>
-                        {/*Name entry field and label*/}
+                        {/*The table just has a header with character name and level to start*/}
                         <Row>
                             <Col md={2}></Col>
                             <Col md={8}>
@@ -601,7 +600,7 @@ const Character = React.createClass(({
             )
         }
     },
-    render: function () {
+    render: function () {//Render function determined by what the subroute is
         return (this.renderContent(this.props.params.subroute));
     }
 }))
