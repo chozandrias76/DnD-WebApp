@@ -1,5 +1,5 @@
 const React = require('react');
-// const ReactDOM = require('react-dom');
+const ReactDOM = require('react-dom');
 
 const {
     FormGroup,
@@ -13,15 +13,30 @@ const {
     Table,
     thead,
     tbody,
+    Alert,
 } = require('react-bootstrap');
+
+const ReactCSSTransitionGroup = require('react-addons-css-transition-group'); // ES5 with npm
+const ReactTransitionGroup = require('react-addons-transition-group'); // ES5 with npm
+
 
 const { Link } = require('react-router');
 
 const Character = React.createClass(({
-  propTypes: {
-    params: React.PropTypes.params.isRequired,
+  getInitialState() {
+    return {
+      showSaveAlert: false,
+    };
   },
   componentDidMount() {},
+  addSaveAlert() {
+    this.setState({ showSaveAlert: true });
+    setTimeout(this.removeSaveAlert, 6000);
+  },
+  removeSaveAlert() {
+    this.setState({ showSaveAlert: false });
+  },
+
   saveCharacter() { // Our method for saving characters
     const characterList = JSON.parse(localStorage.getItem('characters'));// We want to get the characters in localstorage and translate from a string to a javascript object
     const fieldsToSave = document.getElementsByClassName('character-sheet-field');// This selector grabs all the elements on the page that are part of the character sheet
@@ -66,6 +81,7 @@ const Character = React.createClass(({
   },
   renderContent(subroute) { // Right now this file handles all the subroutes for /characters
     if (subroute === 'new') { // If we are creating a new character
+      const saveAlert = this.state.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '';
       return (
         <div>
           <Grid
@@ -91,16 +107,23 @@ const Character = React.createClass(({
                     />
                   </Form>
                 </Col>
-                <Col md={2}>
+                <Col md={2} id="save-button-container">
                   {/* A button for saving the character sheet*/}
                   <Link
-                    onClick={this.saveCharacter}
+                    onClick={this.saveCharacter && this.addSaveAlert}
                     id="save-button"
                     className="btn btn-large btn-success"
                     role="button"
                   >
                   Save Character
                   </Link>
+                  <ReactCSSTransitionGroup
+                    transitionName="save-alert"
+                    transitionEnterTimeout={500}
+                    transitionLeaveTimeout={500}
+                  >
+                    {saveAlert}
+                  </ReactCSSTransitionGroup>
                 </Col>
               </Row>
               {/* Character background field and label*/}
@@ -130,8 +153,7 @@ const Character = React.createClass(({
                     id="personality-field"
                     className="character-sheet-field"
                     componentClass="textarea"
-                    placeholder={`I'm always polite and respectful. 
-                    Also, I don't trust my gut feelings so I tend to wait for others to act.`}
+                    placeholder="I'm always polite and respectful. Also, I don't trust my gut feelings so I tend to wait for others to act."
                   />
                 </Col>
                 {/* Character ideals field and label*/}
@@ -159,8 +181,7 @@ const Character = React.createClass(({
                     id="bonds-field"
                     className="character-sheet-field"
                     componentClass="textarea"
-                    placeholder={`I have three cousins - Gundred, Tharden and Nundro Rockseeker
-                       - who are my friends and cherished clan members.`}
+                    placeholder="I have three cousins - Gundred, Tharden and Nundro Rockseeker - who are my friends and cherished clan members."
                   />
                 </Col>
               </Row>
@@ -174,8 +195,7 @@ const Character = React.createClass(({
                     id="flaws-field"
                     className="character-sheet-field"
                     componentClass="textarea"
-                    placeholder={`I secretly wonder weather the gods care
-                       about mortal affairs at all.`}
+                    placeholder="I secretly wonder weather the gods care about mortal affairs at all."
                   />
                 </Col>
               </Row>
@@ -591,16 +611,13 @@ const Character = React.createClass(({
             <tr key={character.guid}>
               <td>{character.data['name-field']}</td>
               <td>{character.data['level-dropdown']}</td>
-            </tr>,
-                    );
+            </tr>);
         });
       } else { // Render an empty row if we have no characters
         characterRows.push(
           <tr key="none">
             <td>No characters created yet</td>
-
-          </tr>,
-                );
+          </tr>);
       }
             // No matter what the contents of local storage is, render a header for the table
       return (

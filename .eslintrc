@@ -1,8 +1,31 @@
 {
-  "extends": "airbnb",
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "airbnb"
+  ],
+    "plugins": [
+    "react"
+  ],
+   "parserOptions": {
+    "ecmaVersion": 5,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
   "react/jsx-indent": [true, 2],
   "globals": {
         "localStorage": true,
         "document": true
     }
+    // "comma-dangle": ["error", {
+    //     "property": "never",
+    //     "arrays": "never",
+    //     "objects": "never",
+    //     "imports": "never",
+    //     "exports": "never",
+    //     "functions": "ignore"
+    // }]
 }

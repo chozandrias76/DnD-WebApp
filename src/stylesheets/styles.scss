@@ -31,3 +31,21 @@ body-header {
   font-size: 20px;
   padding: 10px;
 }
+
+.save-alert-enter {
+  opacity: 0.01;
+}
+
+.save-alert-enter.save-alert-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.save-alert-leave {
+  opacity: 1;
+}
+
+.save-alert-leave.save-alert-leave-active {
+  opacity: 0.01;
+  transition: opacity 500ms ease-in;
+}
