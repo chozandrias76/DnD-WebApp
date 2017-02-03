@@ -258,12 +258,21 @@ const Character = React.createClass(({
                                             <FormGroup >
                                                 <Col componentClass={ControlLabel} md={2}>Init.</Col>
                                                 <Col md={10}>
-
-                                                    <FormControl
+                                                <FormControl
+                                                        id="initiative-dropdown"
                                                         className="character-sheet-field"
-                                                        id="initiative-field"
-                                                        type="text"
-                                                        placeholder="-1"/>
+                                                        componentClass="select"
+                                                        placeholder="">
+                                                        <option value="-4">-4</option>
+                                                        <option value="-3">-3</option>
+                                                        <option value="-2">-2</option>
+                                                        <option value="-1">-1</option>
+                                                        <option value="0">0</option>
+                                                        <option value="1">+1</option>
+                                                        <option value="2">+2</option>
+                                                        <option value="3">+3</option>
+                                                        <option value="4">+4</option>
+                                                    </FormControl>
                                                 </Col>
                                             </FormGroup>
                                         </Form>
