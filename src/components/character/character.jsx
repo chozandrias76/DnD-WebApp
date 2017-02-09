@@ -23,7 +23,7 @@ const ReactTransitionGroup = require('react-addons-transition-group'); // ES5 wi
 
 
 const { Link } = require('react-router');
-let currentCharacterGUID = ""
+let currentCharacterGUID = '';
 const Character = React.createClass(({
   getInitialState() {
     return {
@@ -40,17 +40,18 @@ const Character = React.createClass(({
         characterData: {},
       },
     };
-    this.setState(() => {
-      return Object.assign(localStorage.state === undefined ? (newState) : JSON.parse(localStorage.state), newState);
-    });
+    this.setState(() => Object.assign({}, localStorage.state === undefined ? newState : JSON.parse(localStorage.state), newState));
   },
-  componentDidUpdate(prevProps, prevState) {
-    //  localStorage.setState(() => {
-    //   return Object.assign(this.state, newData);
-    // });
-    console.log(this.state);
-    console.log(localStorage.state);
-    localStorage.state = JSON.stringify(Object.assign({}, this.state));
+  componentDidUpdate() {
+    this.syncState();
+    //localStorage.state = JSON.stringify(this.combineObjects(this.state, localStorage.state === undefined ? {} : JSON.parse(localStorage.state)));
+  },
+  syncState() {
+    localStorage.state = JSON.stringify(this.state);
+  },
+  combineObjects(obj, src) {
+    Object.keys(src).forEach((key) => { obj[key] = src[key]; });
+    return obj;
   },
   addSaveAlert() {
     this.setState({ documentData: {
@@ -64,19 +65,23 @@ const Character = React.createClass(({
     } });
   },
   loadCharacter(guid) {
-    const characterList = JSON.parse(localStorage.getItem('characters'));
-    const fieldsToFill = document.getElementsByClassName('character-sheet-field');// This selector grabs all the elements on the page that are part of the character sheet
-    const ourCharacter = characterList.some(character => character.guid === guid);
+    const characterList = JSON.parse(localStorage.getItem('state'));
+    const elementsToFill = document.getElementsByClassName('character-sheet-field');// This selector grabs all the elements on the page that are part of the character sheet
+    const ourCharacter = characterList[guid];
+    const localStorageCharacterData = ourCharacter.characterData;
+    let dataToFill;
     []
             .forEach
-            .call(fieldsToFill, (e) => {
-              let dataToFill;
-              const elementToFill = ourCharacter.data.some((fieldData) => { // Iterates through all the character data for this character and sets elementToFill to the corrisponding element
-                dataToFill = fieldData; // Set the dataToFill every iteration. It only matters when this method returns and sets to the correct value
-                return fieldData.key === e.id; // When the data's name corrisponds to the right element name elementToFill is set
-              });
-              elementToFill.value = dataToFill.value; // Each iteration, set the forum value to match the data grabbed from the character sheet in local storage
+            .call(elementsToFill, (e) => {
+              for (let property in localStorageCharacterData) {
+                if (localStorageCharacterData.hasOwnProperty(property)) {
+                  if (property = e.id) {
+                    e.value = localStorageCharacterData[property];
+                  }
+                }
+              }
             });
+              // elementToFill.value = dataToFill.value; // Each iteration, set the forum value to match the data grabbed from the character sheet in local storage
   },
   // 4-character generator
   generateFour() {
@@ -86,8 +91,8 @@ const Character = React.createClass(({
   },
   // Guid generator function. Not really needed but, good plan if the project expands
   createInitialData() {
-    const initialData = {};
-    let gUID = [];
+    // const initialData = {};
+    const gUID = [];
     for (let i = 0; i < 7; i += 1) {
       const nextPart = this.generateFour();
       gUID.push(nextPart);
@@ -129,22 +134,11 @@ const Character = React.createClass(({
   handleChange(e) {
     const characterSheetGUID = document.getElementsByName('character-sheet-wrapper')[0].id;
     const newData = { [characterSheetGUID]: { characterData: { [e.target.id]: e.target.value } } };
-    //this.setState(newData);
-    this.setState(() => {
-      return Object.assign(this.state, newData);
-    });
-   
-    this.handleSubmit(e.target.value);
+    newData[characterSheetGUID].characterData = this.combineObjects(this.state[characterSheetGUID].characterData, newData[characterSheetGUID].characterData);
+    this.setState(this.combineObjects(this.state, newData));
+    this.syncState();
   },
-  mergeOptions(obj1,obj2){
-    let obj3 = {};
-    for (let attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-    for (let attrname in obj2) { obj3[attrname] = obj2[attrname]; }
-    return obj3;
-},
-  handleSubmit(txt) {
-    // this.props.onChange(txt);
-  },
+
   defaultCharacterSheet(characterQuery) {
     const saveAlert = this.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '';
     if (characterQuery) console.log(characterQuery);
@@ -205,6 +199,7 @@ const Character = React.createClass(({
                     className="character-sheet-field"
                     type="text"
                     placeholder="Soldier"
+                    onChange={this.handleChange}
                   />
                 </Form>
               </Col>
@@ -221,6 +216,7 @@ const Character = React.createClass(({
                   className="character-sheet-field"
                   componentClass="textarea"
                   placeholder="I'm always polite and respectful. Also, I don't trust my gut feelings so I tend to wait for others to act."
+                  onChange={this.handleChange}
                 />
               </Col>
               {/* Character ideals field and label*/}
@@ -235,6 +231,7 @@ const Character = React.createClass(({
                   className="character-sheet-field"
                   componentClass="textarea"
                   placeholder="Respect. People deserve to be treated with dignity and courtesy."
+                  onChange={this.handleChange}
                 />
               </Col>
             </Row>
@@ -249,6 +246,7 @@ const Character = React.createClass(({
                   className="character-sheet-field"
                   componentClass="textarea"
                   placeholder="I have three cousins - Gundred, Tharden and Nundro Rockseeker - who are my friends and cherished clan members."
+                  onChange={this.handleChange}
                 />
               </Col>
             </Row>
@@ -263,6 +261,7 @@ const Character = React.createClass(({
                   className="character-sheet-field"
                   componentClass="textarea"
                   placeholder="I secretly wonder weather the gods care about mortal affairs at all."
+                  onChange={this.handleChange}
                 />
               </Col>
             </Row>
@@ -280,6 +279,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="fighter">Fighter</option>
                           <option value="wizard">Wizard</option>
@@ -300,6 +300,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="lawful-good">Lawful Good</option>
                           <option value="lawful-neutral">Lawful Neutral</option>
@@ -324,6 +325,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -345,6 +347,7 @@ const Character = React.createClass(({
                           id="exp-field"
                           type="text"
                           placeholder="0"
+                          onChange={this.handleChange}
                         />
                       </Col>
                     </FormGroup>
@@ -369,6 +372,7 @@ const Character = React.createClass(({
                           id="initiative-field"
                           type="text"
                           placeholder="-1"
+                          onChange={this.handleChange}
                         />
                       </Col>
                     </FormGroup>
@@ -384,6 +388,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           type="text"
                           placeholder="25 Feet"
+                          onChange={this.handleChange}
                         />
                       </Col>
                     </FormGroup>
@@ -399,6 +404,7 @@ const Character = React.createClass(({
                           id="hp-field"
                           type="text"
                           placeholder="11"
+                          onChange={this.handleChange}
                         />
                       </Col>
                     </FormGroup>
@@ -414,6 +420,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -430,6 +437,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="8">8</option>
                           <option value="7">7</option>
@@ -459,6 +467,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -473,6 +482,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -493,6 +503,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -507,6 +518,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -527,6 +539,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -541,6 +554,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -561,6 +575,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -575,6 +590,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -595,6 +611,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -609,6 +626,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -629,6 +647,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -643,6 +662,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
+                          onChange={this.handleChange}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
