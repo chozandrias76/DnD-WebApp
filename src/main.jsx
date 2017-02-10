@@ -67,6 +67,7 @@ ReactDOM.render((
     <Route path="public" component={MainComponent} />
     <Route path="characters" component={CharacterComponent} />
     <Route path="characters/:subroute" component={CharacterComponent} />
+    <Route path="characters/:subroute/:guid" component={CharacterComponent} />
     <Route path="*" component={NoMatch} />
   </Router>
 ), document.getElementById('react-entry'));
