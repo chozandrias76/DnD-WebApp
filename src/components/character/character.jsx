@@ -24,6 +24,7 @@ const ReactTransitionGroup = require('react-addons-transition-group'); // ES5 wi
 
 const { Link } = require('react-router');
 let currentCharacterGUID = '';
+let subroute = '';
 const Character = React.createClass(({
   getInitialState() {
     return {
@@ -33,54 +34,101 @@ const Character = React.createClass(({
     };
   },
   componentWillMount() {
-    const initialData = document.getElementsByName('character-sheet-wrapper')[0] === undefined ? this.createInitialData() : document.getElementsByName('character-sheet-wrapper')[0].id;
-    currentCharacterGUID = initialData;
-    const newState = {
-      [initialData]: {
-        characterData: {},
-      },
-    };
-    this.setState(() => Object.assign({}, localStorage.state === undefined ? newState : JSON.parse(localStorage.state), newState));
+    let initialData = {};
+
+    if (this.props.params.subroute === 'new') {
+      // alert(this.props.params.subroute);
+      initialData = document.getElementsByName('character-sheet-wrapper')[0] === undefined ?
+     this.createInitialData() : document.getElementsByName('character-sheet-wrapper')[0].id;
+      currentCharacterGUID = initialData;
+      const newState = {
+        [initialData]: {
+          characterData: {},
+        },
+      };
+      this.syncState('localStorageState');
+      this.setState(this.combineObjects(localStorage.state === undefined ? {} : JSON.parse(localStorage.state), newState));
+      this.syncState('reactState');
+      // this.setState(this.combineObjects(localStorage.state === undefined ? {} : JSON.parse(localStorage.state), newState);
+      // this.setState(() => Object.assign({}, localStorage.state === undefined ? newState : JSON.parse(localStorage.state), newState));
+      // this.syncState('reactState');
+      localStorage.state = JSON.stringify(this.state);
+    } else if (this.props.params.subroute === 'load') {
+      this.syncState('localStorageState');
+      this.loadCharacter();
+    }
+  },
+  componentDidMount() {
+    if (this.props.params.subroute === 'load') {
+      document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID;
+    }
   },
   componentDidUpdate() {
-    this.syncState();
-    //localStorage.state = JSON.stringify(this.combineObjects(this.state, localStorage.state === undefined ? {} : JSON.parse(localStorage.state)));
+    this.syncState('reactState');
   },
-  syncState() {
-    localStorage.state = JSON.stringify(this.state);
+  syncState(authoringState) {
+    if (authoringState === 'localStorageState') {
+      this.setState(JSON.parse(localStorage.state)[document.getElementById(currentCharacterGUID)]);
+    } else if (authoringState === 'reactState') {
+      // console.log(JSON.stringify(this.combineObjects(JSON.parse(localStorage.state)[currentCharacterGUID], this.state)));
+      localStorage.state = JSON.stringify(this.combineObjects(localStorage.state === undefined ? {} : JSON.parse(localStorage.state), this.state));
+      // localStorage.state = JSON.stringify(this.state);
+    }
   },
+  /* eslint-disable no-param-reassign*/
   combineObjects(obj, src) {
+    // Object.keys(src).forEach((key) => { obj.assign(obj[key], src[key]); });
     Object.keys(src).forEach((key) => { obj[key] = src[key]; });
     return obj;
   },
-  addSaveAlert() {
-    this.setState({ documentData: {
-      showSaveAlert: true,
-    } });
-    setTimeout(this.removeSaveAlert, 6000);
+  /* eslint-enable no-param-reassign*/
+  toggleSaveAlert() {
+    if (Object.prototype.hasOwnProperty.call(this.state.documentData, 'showSaveAlert')) {
+      if (this.state.documentData.showSaveAlert) {
+        this.setState({ documentData: {
+          showSaveAlert: false,
+        } });
+      } else {
+        this.setState({ documentData: {
+          showSaveAlert: true,
+        } });
+        setTimeout(this.toggleSaveAlert(), 6000);
+      }
+    }
   },
-  removeSaveAlert() {
-    this.setState({ documentData: {
-      showSaveAlert: false,
-    } });
-  },
-  loadCharacter(guid) {
-    const characterList = JSON.parse(localStorage.getItem('state'));
-    const elementsToFill = document.getElementsByClassName('character-sheet-field');// This selector grabs all the elements on the page that are part of the character sheet
-    const ourCharacter = characterList[guid];
-    const localStorageCharacterData = ourCharacter.characterData;
-    let dataToFill;
-    []
-            .forEach
-            .call(elementsToFill, (e) => {
-              for (let property in localStorageCharacterData) {
-                if (localStorageCharacterData.hasOwnProperty(property)) {
-                  if (property = e.id) {
-                    e.value = localStorageCharacterData[property];
-                  }
-                }
-              }
-            });
+  loadCharacter() {
+    const localStorageState = JSON.parse(localStorage.state);
+    if (Object.prototype.hasOwnProperty.call(localStorageState, currentCharacterGUID)) { // If there is a property that matches a GUID provided
+      const stateFilledCharacterData = currentCharacterGUID.characterData; // Set a copy of the character data in state
+      console.log("dingus");
+      Object.keys(stateFilledCharacterData).forEach((characterData, index) => { // For every property in the character data
+        document.getElementById(stateFilledCharacterData[index]).value = characterData; //
+      });
+    }
+    // const characterList = JSON.parse(localStorage.getItem('state'));
+    // const elementsToFill = document.getElementsByClassName('character-sheet-field');// This selector grabs all the elements on the page that are part of the character sheet
+    // const ourCharacter = characterList[guid];
+    // const localStorageCharacterData = ourCharacter.characterData;
+    // // let dataToFill;
+    // []
+    //         .forEach
+    //         .call(elementsToFill, (e) => {
+    //           Object.keys(localStorageCharacterData).forEach((fieldData, index) => {
+    //             if (Object.prototype.hasOwnProperty.call(localStorageCharacterData, fieldData)) {
+    //               if (fieldData === e.id) {
+
+    //                 e.value = localStorageCharacterData[fieldData];
+    //               }
+    //             }
+    //           });
+              // for (let property in localStorageCharacterData) {
+              //   if (localStorageCharacterData.hasOwnProperty(property)) {
+              //     if (property = e.id) {
+              //       e.value = localStorageCharacterData[property];
+              //     }
+              //   }
+              // }
+            // });
               // elementToFill.value = dataToFill.value; // Each iteration, set the forum value to match the data grabbed from the character sheet in local storage
   },
   // 4-character generator
@@ -103,45 +151,22 @@ const Character = React.createClass(({
     return gUID.join('');
   },
 
-  saveCharacter() { // Our method for saving characters
-    const characterList = JSON.parse(localStorage.getItem('characters'));// We want to get the characters in localstorage and translate from a string to a javascript object
-    const fieldsToSave = document.getElementsByClassName('character-sheet-field');// This selector grabs all the elements on the page that are part of the character sheet
-    const newCharacter = {};
-    newCharacter.data = {};
-
-    // Iterator function for saving fields
-    function saveField(curr) {
-      newCharacter.data[curr.id] = curr.value;
-    }
-
-    newCharacter.guid = document.getElementsByName('character-sheet-wrapper')[0].className();
-        // fieldsToSave not technically an array so we call the array method
-        // and apply the fields as though they were elements in an array
-    []
-            .forEach
-            .call(fieldsToSave, (e) => {
-              saveField(e);
-            });
-            // Add the new character to the list of characters
-            // and put them in local storage as strings
-    characterList.push(newCharacter);
-    localStorage.setItem('characters', JSON.stringify(characterList));
-  },
   handleTRClick(guid) {
     // console.log(guid);
     browserHistory.push({ pathname: 'characters/load', query: { guid } });
+    currentCharacterGUID = guid;
   },
   handleChange(e) {
     const characterSheetGUID = document.getElementsByName('character-sheet-wrapper')[0].id;
     const newData = { [characterSheetGUID]: { characterData: { [e.target.id]: e.target.value } } };
     newData[characterSheetGUID].characterData = this.combineObjects(this.state[characterSheetGUID].characterData, newData[characterSheetGUID].characterData);
     this.setState(this.combineObjects(this.state, newData));
-    this.syncState();
+    this.syncState('reactState');
   },
 
   defaultCharacterSheet(characterQuery) {
     const saveAlert = this.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '';
-    if (characterQuery) console.log(characterQuery);
+    if (characterQuery) currentCharacterGUID = characterQuery;
     return (
       <div name="character-sheet-wrapper" id={currentCharacterGUID}>
         <Grid
@@ -171,7 +196,7 @@ const Character = React.createClass(({
               <Col md={2} id="save-button-container">
                 {/* A button for saving the character sheet*/}
                 <Link
-                  onClick={this.saveCharacter && this.addSaveAlert}
+                  onClick={this.toggleSaveAlert}
                   id="save-button"
                   className="btn btn-large btn-success"
                   role="button"
@@ -685,33 +710,44 @@ const Character = React.createClass(({
 
     );
   },
-  renderContent(subroute) { // Right now this file handles all the subroutes for /characters
+  propName(prop, value) {
+    let res = '';
+    for (const i in prop) {
+      if (typeof prop[i] === 'object') {
+        if (this.propName(prop[i], value)) {
+          return res;
+        }
+      } else if (prop[i] == value) {
+        res = i;
+        return res;
+      }
+    }
+    return undefined;
+  },
+  renderContent() { // Right now this file handles all the subroutes for /characters
     if (subroute === 'new') { // If we are creating a new character
       return (
        this.defaultCharacterSheet()
       );
     } else if (subroute === 'load') {
-      return (
-        this.defaultCharacterSheet(this.props.location.query.guid)
-      );
-      // return (
-      //   <div>
-      //     <p>{subroute}</p>
-      //     <p>{this.props.location.query.guid}</p>
-      //   </div>
-      // );
+      const aDefaultCharacterSheet = this.defaultCharacterSheet(this.props.location.query.guid);
+      return aDefaultCharacterSheet;
     } else if (subroute === undefined) {
       /* This is the default route
       for /characters with no subroute. Just display all the characters here*/
-      const allCharacters = JSON.parse(localStorage.getItem('characters')); // Grab all the characters from localstorage
+      const allCharacters = JSON.parse(localStorage.state); // Grab all the characters from localstorage
+      delete allCharacters.documentData;
+
       const characterRows = [];
-      if (allCharacters.length > 0) {
+      if (allCharacters) {
+        let characterData = {};
         // Render the characters only if there are actually some to render
-        allCharacters.forEach((character) => {
+        Object.keys(allCharacters).forEach((characterGUID, index) => {
+          characterData = allCharacters[characterGUID].characterData;
           characterRows.push(
-            <tr key={character.guid} onClick={() => { this.handleTRClick(character.guid); }}>
-              <td >{character.data['name-field']}</td>
-              <td>{character.data['level-dropdown']}</td>
+            <tr key={allCharacters[index]} onClick={() => { this.handleTRClick(characterGUID); }}>
+              <td >{characterData['name-field']}</td>
+              <td>{characterData['level-dropdown']}</td>
             </tr>);
         });
       } else { // Render an empty row if we have no characters
@@ -757,7 +793,8 @@ const Character = React.createClass(({
     );
   },
   render() { // Render function determined by what the subroute is
-    return (this.renderContent(this.props.params.subroute));
+    subroute = this.props.params.subroute;
+    return (this.renderContent());
   },
 }));
 
