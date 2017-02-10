@@ -46,7 +46,7 @@ const Character = React.createClass(({
           characterData: {},
         },
       };
-      this.syncState('localStorageState');
+      // if(localStorage.state !== undefined) this.syncState('localStorageState');
       this.setState(this.combineObjects(localStorage.state === undefined ? {} : JSON.parse(localStorage.state), newState));
       this.syncState('reactState');
       // this.setState(this.combineObjects(localStorage.state === undefined ? {} : JSON.parse(localStorage.state), newState);
@@ -61,9 +61,32 @@ const Character = React.createClass(({
   componentDidMount() {
     if (this.props.params.subroute === 'load') {
       document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID;
+      const localStorageState = JSON.parse(localStorage.state);
+      delete localStorageState.documentData;
+      if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
+        const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
+        Object.keys(stateFilledCharacterData).forEach((data, index) => { // For every property in the character data
+        // console.log(stateFilledCharacterData[data].toString());
+          // console.log(document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data].toString())));
+          document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data].toString())).value = stateFilledCharacterData[data]; //
+        });
+      }
     }
   },
   componentDidUpdate() {
+    if (this.props.params.subroute === 'load') {
+      document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID;
+      const localStorageState = JSON.parse(localStorage.state);
+      delete localStorageState.documentData;
+      if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
+        const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
+        Object.keys(stateFilledCharacterData).forEach((data, index) => { // For every property in the character data
+        // console.log(stateFilledCharacterData[data].toString());
+          // console.log(document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data].toString())));
+          document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data].toString())).value = stateFilledCharacterData[data]; //
+        });
+      }
+    }
     this.syncState('reactState');
   },
   syncState(authoringState) {
@@ -97,39 +120,7 @@ const Character = React.createClass(({
     }
   },
   loadCharacter() {
-    const localStorageState = JSON.parse(localStorage.state);
-    if (Object.prototype.hasOwnProperty.call(localStorageState, currentCharacterGUID)) { // If there is a property that matches a GUID provided
-      const stateFilledCharacterData = currentCharacterGUID.characterData; // Set a copy of the character data in state
-      console.log("dingus");
-      Object.keys(stateFilledCharacterData).forEach((characterData, index) => { // For every property in the character data
-        document.getElementById(stateFilledCharacterData[index]).value = characterData; //
-      });
-    }
-    // const characterList = JSON.parse(localStorage.getItem('state'));
-    // const elementsToFill = document.getElementsByClassName('character-sheet-field');// This selector grabs all the elements on the page that are part of the character sheet
-    // const ourCharacter = characterList[guid];
-    // const localStorageCharacterData = ourCharacter.characterData;
-    // // let dataToFill;
-    // []
-    //         .forEach
-    //         .call(elementsToFill, (e) => {
-    //           Object.keys(localStorageCharacterData).forEach((fieldData, index) => {
-    //             if (Object.prototype.hasOwnProperty.call(localStorageCharacterData, fieldData)) {
-    //               if (fieldData === e.id) {
 
-    //                 e.value = localStorageCharacterData[fieldData];
-    //               }
-    //             }
-    //           });
-              // for (let property in localStorageCharacterData) {
-              //   if (localStorageCharacterData.hasOwnProperty(property)) {
-              //     if (property = e.id) {
-              //       e.value = localStorageCharacterData[property];
-              //     }
-              //   }
-              // }
-            // });
-              // elementToFill.value = dataToFill.value; // Each iteration, set the forum value to match the data grabbed from the character sheet in local storage
   },
   // 4-character generator
   generateFour() {
@@ -710,14 +701,14 @@ const Character = React.createClass(({
 
     );
   },
-  propName(prop, value) {
+  propName(object, propertyValue) {
     let res = '';
-    for (const i in prop) {
-      if (typeof prop[i] === 'object') {
-        if (this.propName(prop[i], value)) {
+    for (const i in object) {
+      if (typeof object[i] === 'object') {
+        if (this.propName(object[i], propertyValue)) {
           return res;
         }
-      } else if (prop[i] == value) {
+      } else if (object[i] === propertyValue) {
         res = i;
         return res;
       }
@@ -735,11 +726,11 @@ const Character = React.createClass(({
     } else if (subroute === undefined) {
       /* This is the default route
       for /characters with no subroute. Just display all the characters here*/
-      const allCharacters = JSON.parse(localStorage.state); // Grab all the characters from localstorage
+      const characterRows = [];
+      const allCharacters = localStorage.state === undefined ? {} : JSON.parse(localStorage.state); // Grab all the characters from localstorage
       delete allCharacters.documentData;
 
-      const characterRows = [];
-      if (allCharacters) {
+      if (localStorage.state !== undefined) {
         let characterData = {};
         // Render the characters only if there are actually some to render
         Object.keys(allCharacters).forEach((characterGUID, index) => {
@@ -771,16 +762,16 @@ const Character = React.createClass(({
               <Col md={2} />
               <Col md={8}>
                 <Table striped bordered condensed hover>
-                  <thead>
+                   <thead>
                     <tr>
                       <th>Character Name</th>
                       <th>Level</th>
                     </tr>
                   </thead>
-                  <tbody>
+                   <tbody>
                     {characterRows}
                   </tbody>
-                </Table>
+                 </Table>
               </Col>
               <Col md={2} />
             </Row>
