@@ -22,6 +22,80 @@ const ReactCSSTransitionGroup = require('react-addons-css-transition-group'); //
 // const ReactTransitionGroup = require('react-addons-transition-group'); // ES5 with npm
 const { Link } = require('react-router');
 
+const CharacterSheetTextField = React.createClass({
+  render() {
+    return (
+      <Row className="character-sheet-row">
+        <Col md={2}>
+          <ControlLabel className="character-form-description">{this.props.labelName}</ControlLabel>
+        </Col>
+        <Col md={8}>
+          <Form horizontal>
+            <FormControl
+              id={this.props.divID}
+              className="character-sheet-field"
+              type="text"
+              placeholder={this.props.placeHolder}
+              onChange={Character.handleChangingCharacterSheetElement}
+            />
+          </Form>
+        </Col>
+      </Row>
+    );
+  },
+});
+const CharacterSheetStatDropdown = React.createClass({
+  withModifierElements() {
+    return this.props.withModifier ?
+      (<Col md={4}>
+        <FormControl
+          id={`${this.props.divID}-modifier`}
+          className="character-sheet-field"
+          componentClass="select"
+          placeholder=""
+          onChange={this.handleChangingCharacterSheetElement}
+        >
+          <option value="-4">-4</option>
+          <option value="-3">-3</option>
+          <option value="-2">-2</option>
+          <option value="-1">-1</option>
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </FormControl>
+      </Col>) :
+            (<div />);
+  },
+  render() {
+    return (
+      <Form horizontal>
+        <FormGroup >
+          <Col componentClass={ControlLabel} md={2}>{this.props.labelName}</Col>
+          <Col md={4}>
+            <FormControl
+              id={this.props.divID}
+              className="character-sheet-field"
+              componentClass="select"
+              placeholder=""
+              onChange={this.handleChangingCharacterSheetElement}
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </FormControl>
+          </Col>
+          {this.withModifierElements()}
+        </FormGroup>
+      </Form>
+    );
+  },
+});
+
+
 let currentCharacterGUID = '';
 let subroute = '';
 const Character = React.createClass(({
@@ -187,118 +261,17 @@ const Character = React.createClass(({
           <h1>Create Character</h1>
           <div id="character-sheet-body">
             {/* Name entry field and label*/}
-            <Row className="character-sheet-row">
-              <Col md={2}>
-                <ControlLabel className="character-form-description">Name</ControlLabel>
-              </Col>
-              <Col md={8}>
-                <Form horizontal>
-                  <FormControl
-                    id="name-field"
-                    className="character-sheet-field"
-                    type="text"
-                    placeholder="Nedberth the Red"
-                    onChange={this.handleChangingCharacterSheetElement}
-                  />
-                </Form>
-              </Col>
-              <Col md={2} id="save-button-container">
-                {/* A button for saving the character sheet*/}
-                <Link
-                  onClick={this.toggleSaveAlert}
-                  id="save-button"
-                  className="btn btn-large btn-success"
-                  role="button"
-                >
-                  Save Character
-                  </Link>
-                <ReactCSSTransitionGroup
-                  transitionName="save-alert"
-                  transitionEnterTimeout={500}
-                  transitionLeaveTimeout={500}
-                >
-                  {saveAlert}
-                </ReactCSSTransitionGroup>
-              </Col>
-            </Row>
+            <CharacterSheetTextField labelName="Name" divID="name-field" placeHolder="Nedberth the Red" />
             {/* Character background field and label*/}
-            <Row className="character-sheet-row">
-              <Col md={2}>
-                <ControlLabel className="character-form-description">Background</ControlLabel>
-              </Col>
-              <Col md={8}>
-                <Form horizontal>
-                  <FormControl
-                    id="background-field"
-                    className="character-sheet-field"
-                    type="text"
-                    placeholder="Soldier"
-                    onChange={this.handleChangingCharacterSheetElement}
-                  />
-                </Form>
-              </Col>
-            </Row>
+            <CharacterSheetTextField labelName="Background" divID="background-field" placeHolder="Soldier" />
             {/* Character personality traits field and label*/}
-            <Row className="character-sheet-row">
-              <Col md={2}>
-                <ControlLabel className="character-form-description">
-                  Personality Traits</ControlLabel>
-              </Col>
-              <Col md={8}>
-                <FormControl
-                  id="personality-field"
-                  className="character-sheet-field"
-                  componentClass="textarea"
-                  placeholder="I'm always polite and respectful. Also, I don't trust my gut feelings so I tend to wait for others to act."
-                  onChange={this.handleChangingCharacterSheetElement}
-                />
-              </Col>
-              {/* Character ideals field and label*/}
-            </Row>
-            <Row className="character-sheet-row">
-              <Col md={2}>
-                <ControlLabel className="character-form-description">Ideals</ControlLabel>
-              </Col>
-              <Col md={8}>
-                <FormControl
-                  id="ideals-field"
-                  className="character-sheet-field"
-                  componentClass="textarea"
-                  placeholder="Respect. People deserve to be treated with dignity and courtesy."
-                  onChange={this.handleChangingCharacterSheetElement}
-                />
-              </Col>
-            </Row>
+            <CharacterSheetTextField labelName="Personality Traits" divID="personality-field" placeHolder="I'm always polite and respectful. Also, I don't trust my gut feelings so I tend to wait for others to act." />
+            {/* Character ideals field and label*/}
+            <CharacterSheetTextField labelName="Ideals" divID="ideals-field" placeHolder="Respect. People deserve to be treated with dignity and courtesy." />
             {/* Character bonds field and label*/}
-            <Row className="character-sheet-row">
-              <Col md={2}>
-                <ControlLabel className="character-form-description">Bonds</ControlLabel>
-              </Col>
-              <Col md={8}>
-                <FormControl
-                  id="bonds-field"
-                  className="character-sheet-field"
-                  componentClass="textarea"
-                  placeholder="I have three cousins - Gundred, Tharden and Nundro Rockseeker - who are my friends and cherished clan members."
-                  onChange={this.handleChangingCharacterSheetElement}
-                />
-              </Col>
-            </Row>
+            <CharacterSheetTextField labelName="Bonds" divID="bonds-field" placeHolder="I have three cousins - Gundred, Tharden and Nundro Rockseeker - who are my friends and cherished clan members." />
             {/* Character flaws field and label*/}
-            <Row className="character-sheet-row">
-              <Col md={2}>
-                <ControlLabel className="character-form-description">Flaws</ControlLabel>
-              </Col>
-              <Col md={8}>
-                <FormControl
-                  id="flaws-field"
-                  className="character-sheet-field"
-                  componentClass="textarea"
-                  placeholder="I secretly wonder weather the gods care about mortal affairs at all."
-                  onChange={this.handleChangingCharacterSheetElement}
-                />
-              </Col>
-            </Row>
+            <CharacterSheetTextField labelName="Flaws" divID="flaws-field" placeHolder="I secretly wonder weather the gods care about mortal affairs at all." />
             <Row className="character-sheet-row">
               <Col md={2} />
               <Col md={4}>
@@ -444,7 +417,6 @@ const Character = React.createClass(({
                     <FormGroup >
                       <Col componentClass={ControlLabel} md={2}>Speed</Col>
                       <Col md={10}>
-
                         <FormControl
                           id="speed-field"
                           className="character-sheet-field"
@@ -460,7 +432,6 @@ const Character = React.createClass(({
                     <FormGroup >
                       <Col componentClass={ControlLabel} md={2}>Max. HP</Col>
                       <Col md={10}>
-
                         <FormControl
                           className="character-sheet-field"
                           id="hp-field"
@@ -481,9 +452,10 @@ const Character = React.createClass(({
                           id="hitdice-dropdown"
                           className="character-sheet-field"
                           componentClass="select"
-                          placeholder=""
+                          placeholder="0"
                           onChange={this.handleChangingCharacterSheetElement}
                         >
+                          <option value="0">0</option>
                           <option value="1">1</option>
                           <option value="2">2</option>
                           <option value="3">3</option>
@@ -520,249 +492,17 @@ const Character = React.createClass(({
               <Col md={4}>
                 <Well >
                   {/* Character strength and strength bonus dropdowns and labels*/}
-                  <Form horizontal>
-                    <FormGroup >
-                      <Col componentClass={ControlLabel} md={2}>STR</Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="strength-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                        </FormControl>
-                      </Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="strength-modifier-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="-4">-4</option>
-                          <option value="-3">-3</option>
-                          <option value="-2">-2</option>
-                          <option value="-1">-1</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                        </FormControl>
-                      </Col>
-                    </FormGroup>
-                  </Form>
+                  <CharacterSheetStatDropdown labelName="STR" divID="strength-dropdown" withModifier />
                   {/* Character dexterity and dexterity bonus dropdowns and labels*/}
-                  <Form horizontal>
-                    <FormGroup >
-                      <Col componentClass={ControlLabel} md={2}>DEX</Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="dexterity-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                        </FormControl>
-                      </Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="dexterity-modifier-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="-4">-4</option>
-                          <option value="-3">-3</option>
-                          <option value="-2">-2</option>
-                          <option value="-1">-1</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                        </FormControl>
-                      </Col>
-                    </FormGroup>
-                  </Form>
+                  <CharacterSheetStatDropdown labelName="DEX" divID="dexterity-dropdown" withModifier />
                   {/* Character constitution and constitution bonus dropdowns and labels*/}
-                  <Form horizontal>
-                    <FormGroup >
-                      <Col componentClass={ControlLabel} md={2}>CON</Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="constitution-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                        </FormControl>
-                      </Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="constitution-modifier-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="-4">-4</option>
-                          <option value="-3">-3</option>
-                          <option value="-2">-2</option>
-                          <option value="-1">-1</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                        </FormControl>
-                      </Col>
-                    </FormGroup>
-                  </Form>
+                  <CharacterSheetStatDropdown labelName="CON" divID="constitution-dropdown" withModifier />
                   {/* Character intelligence and intelligence bonus dropdowns and labels*/}
-                  <Form horizontal>
-                    <FormGroup >
-                      <Col componentClass={ControlLabel} md={2}>INT</Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="intelligence-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                        </FormControl>
-                      </Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="intelligence-modifier-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="-4">-4</option>
-                          <option value="-3">-3</option>
-                          <option value="-2">-2</option>
-                          <option value="-1">-1</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                        </FormControl>
-                      </Col>
-                    </FormGroup>
-                  </Form>
+                  <CharacterSheetStatDropdown labelName="INT" divID="intelligence-dropdown" withModifier />
                   {/* Character wisdom and wisdom bonus dropdowns and labels*/}
-                  <Form horizontal>
-                    <FormGroup >
-                      <Col componentClass={ControlLabel} md={2}>WIS</Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="wisdom-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                        </FormControl>
-                      </Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="wisdom-modifier-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="-4">-4</option>
-                          <option value="-3">-3</option>
-                          <option value="-2">-2</option>
-                          <option value="-1">-1</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                        </FormControl>
-                      </Col>
-                    </FormGroup>
-                  </Form>
+                  <CharacterSheetStatDropdown labelName="WIS" divID="wisdom-dropdown" withModifier />
                   {/* Character charisma and charisma bonus dropdowns and labels*/}
-                  <Form horizontal>
-                    <FormGroup >
-                      <Col componentClass={ControlLabel} md={2}>CHA</Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="charisma-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="-4">-4</option>
-                          <option value="-3">-3</option>
-                          <option value="-2">-2</option>
-                          <option value="-1">-1</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                        </FormControl>
-                      </Col>
-                      <Col md={4}>
-                        <FormControl
-                          id="charisma-modifier-dropdown"
-                          className="character-sheet-field"
-                          componentClass="select"
-                          placeholder=""
-                          onChange={this.handleChangingCharacterSheetElement}
-                        >
-                          <option value="-4">-4</option>
-                          <option value="-3">-3</option>
-                          <option value="-2">-2</option>
-                          <option value="-1">-1</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                        </FormControl>
-                      </Col>
-                    </FormGroup>
-                  </Form>
+                  <CharacterSheetStatDropdown labelName="CHA" divID="charisma-dropdown" withModifier />
                 </Well>
               </Col>
               <Col md={4} />
