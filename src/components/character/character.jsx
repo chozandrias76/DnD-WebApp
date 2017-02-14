@@ -1,5 +1,5 @@
 const React = require('react');
-const ReactDOM = require('react-dom');
+// const ReactDOM = require('react-dom');
 
 const {
     FormGroup,
@@ -19,93 +19,104 @@ const {
 const { browserHistory } = require('react-router');
 
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group'); // ES5 with npm
-const ReactTransitionGroup = require('react-addons-transition-group'); // ES5 with npm
-
-
+// const ReactTransitionGroup = require('react-addons-transition-group'); // ES5 with npm
 const { Link } = require('react-router');
+
 let currentCharacterGUID = '';
 let subroute = '';
 const Character = React.createClass(({
-  getInitialState() {
-    return {
-      documentData: {
-        showSaveAlert: false,
-      },
-    };
+  getInitialState() { // Set in state when the page loads
+  if(this.state === null) { // If nothing is in state, 
+    if(localStorage !== undefined && localStorage.state !== undefined){ // And if localstorage contains state
+      return JSON.parse(localStorage.state); // Make our state match localstorage
+    } else { // Create a new state with no characters
+      return {
+        documentData: {
+          showSaveAlert: false,
+        }
+      };
+    }
+  }
+      return this.state; // If we already have a state, we don't want to return anything different
   },
-  componentWillMount() {
+  componentWillMount() { // Called when a react component is about to mount
     let initialData = {};
 
     if (this.props.params.subroute === 'new') {
       // alert(this.props.params.subroute);
       initialData = document.getElementsByName('character-sheet-wrapper')[0] === undefined ?
-     this.createInitialData() : document.getElementsByName('character-sheet-wrapper')[0].id;
+     this.gUIDGenerator() : document.getElementsByName('character-sheet-wrapper')[0].id;
       currentCharacterGUID = initialData;
       const newState = {
         [initialData]: {
           characterData: {},
         },
       };
-      // if(localStorage.state !== undefined) this.syncState('localStorageState');
       this.setState(this.combineObjects(localStorage.state === undefined ? {} : JSON.parse(localStorage.state), newState));
       this.syncState('reactState');
-      // this.setState(this.combineObjects(localStorage.state === undefined ? {} : JSON.parse(localStorage.state), newState);
-      // this.setState(() => Object.assign({}, localStorage.state === undefined ? newState : JSON.parse(localStorage.state), newState));
-      // this.syncState('reactState');
       localStorage.state = JSON.stringify(this.state);
     } else if (this.props.params.subroute === 'load') {
+      currentCharacterGUID = this.props.location.query.guid;
       this.syncState('localStorageState');
-      this.loadCharacter();
     }
   },
-  componentDidMount() {
-    if (this.props.params.subroute === 'load') {
-      document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID;
-      const localStorageState = JSON.parse(localStorage.state);
-      delete localStorageState.documentData;
-      if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
-        const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
-        Object.keys(stateFilledCharacterData).forEach((data, index) => { // For every property in the character data
-        // console.log(stateFilledCharacterData[data].toString());
-          // console.log(document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data].toString())));
-          document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data].toString())).value = stateFilledCharacterData[data]; //
-        });
-      }
-    }
+  componentDidMount() { // Is called after the react component did mount
+    /*
+    Right now the only thing that needs to happen after a character component is mounted is load in data from state
+    to appear properly on the fields from the last time it was edited
+    */
+    this.syncCharacterSheetValues();
   },
-  componentDidUpdate() {
-    if (this.props.params.subroute === 'load') {
-      document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID;
-      const localStorageState = JSON.parse(localStorage.state);
-      delete localStorageState.documentData;
-      if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
-        const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
-        Object.keys(stateFilledCharacterData).forEach((data, index) => { // For every property in the character data
-        // console.log(stateFilledCharacterData[data].toString());
-          // console.log(document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data].toString())));
-          document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data].toString())).value = stateFilledCharacterData[data]; //
-        });
+  componentDidUpdate() { // Is called after page updates in any way
+    /*
+    Right now the only thing that needs to happen after a character component is updated is load in data from state
+    to appear properly on the fields from the last time it was edited
+    */
+    this.syncCharacterSheetValues();
+  },
+  syncCharacterSheetValues(){
+    if (this.props.params.subroute === 'load') { // Only need to do things if we mounted the component after loading a character
+          document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID; // Updates the page with the proper guid for the loaded sheet
+          const localStorageState = JSON.parse(localStorage.state); // Make a copy of the local storage state since you can't directly edit it as an object only as a string
+          delete localStorageState.documentData; // Don't have anything to do with the document data right now
+          if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
+            const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
+            Object.keys(stateFilledCharacterData).forEach((data) => { // For every property in the character data
+              //Set our fields in the character sheet to match the data stored in local storage for that character
+              document.getElementById(this.reportPropName(stateFilledCharacterData, stateFilledCharacterData[data])).value = stateFilledCharacterData[data];
+            });
+          }
+        }
+        this.syncState('reactState');
+  },
+  reportPropName(object, propertyValue) {
+    let res = '';
+    for (const i in object) {
+      if (typeof object[i] === 'object') {
+        if (this.reportPropName(object[i], propertyValue)) {
+          return res;
+        }
+      } else if (object[i] === propertyValue) {
+        res = i;
+        return res;
       }
     }
-    this.syncState('reactState');
+    return undefined;
   },
   syncState(authoringState) {
     if (authoringState === 'localStorageState') {
-      this.setState(JSON.parse(localStorage.state)[document.getElementById(currentCharacterGUID)]);
+      this.setState(JSON.parse(localStorage.state));
     } else if (authoringState === 'reactState') {
-      // console.log(JSON.stringify(this.combineObjects(JSON.parse(localStorage.state)[currentCharacterGUID], this.state)));
       localStorage.state = JSON.stringify(this.combineObjects(localStorage.state === undefined ? {} : JSON.parse(localStorage.state), this.state));
-      // localStorage.state = JSON.stringify(this.state);
     }
   },
   /* eslint-disable no-param-reassign*/
-  combineObjects(obj, src) {
-    // Object.keys(src).forEach((key) => { obj.assign(obj[key], src[key]); });
-    Object.keys(src).forEach((key) => { obj[key] = src[key]; });
+  combineObjects(obj, src) { // Better than the vanilla method of copying properties because it updates the values instead of overwriting properties
+      Object.keys(src).forEach((key) => { obj[key] = src[key]; });
     return obj;
   },
   /* eslint-enable no-param-reassign*/
-  toggleSaveAlert() {
+  toggleSaveAlert() { // Toggles on and off our save alert when the button is pressed.
     if (Object.prototype.hasOwnProperty.call(this.state.documentData, 'showSaveAlert')) {
       if (this.state.documentData.showSaveAlert) {
         this.setState({ documentData: {
@@ -119,9 +130,6 @@ const Character = React.createClass(({
       }
     }
   },
-  loadCharacter() {
-
-  },
   // 4-character generator
   generateFour() {
     return Math.floor((1 + Math.random()) * 0x10000)
@@ -129,8 +137,7 @@ const Character = React.createClass(({
                 .substring(1);
   },
   // Guid generator function. Not really needed but, good plan if the project expands
-  createInitialData() {
-    // const initialData = {};
+  gUIDGenerator() {
     const gUID = [];
     for (let i = 0; i < 7; i += 1) {
       const nextPart = this.generateFour();
@@ -141,22 +148,35 @@ const Character = React.createClass(({
     }
     return gUID.join('');
   },
-
+  // How to handle when a character is clicked in the menu displaying all characters in a table
   handleTRClick(guid) {
-    // console.log(guid);
-    browserHistory.push({ pathname: 'characters/load', query: { guid } });
-    currentCharacterGUID = guid;
+    browserHistory.push({ pathname: 'characters/load', query: { guid } });// Route is not set up on this page so <Links> and <a href> don't work with react-router
+    currentCharacterGUID = guid;// This sets the GUID of the react element
   },
-  handleChange(e) {
-    const characterSheetGUID = document.getElementsByName('character-sheet-wrapper')[0].id;
-    const newData = { [characterSheetGUID]: { characterData: { [e.target.id]: e.target.value } } };
-    newData[characterSheetGUID].characterData = this.combineObjects(this.state[characterSheetGUID].characterData, newData[characterSheetGUID].characterData);
-    this.setState(this.combineObjects(this.state, newData));
-    this.syncState('reactState');
+  // How to handle when a form is being updated in the character sheet
+  handleChangingCharacterSheetElement(e) {
+    const characterSheetGUID = document.getElementsByName('character-sheet-wrapper')[0].id; // Sets the ID stored in our react element to the element ID of our root div
+    const newData = { [characterSheetGUID]: { characterData: { [e.target.id]: e.target.value } } }; // Sets the data in a format that matches with state and localstorage.state
+    //console.log(this.state)
+    newData[characterSheetGUID].characterData = this.combineObjects(this.state[characterSheetGUID].characterData, newData[characterSheetGUID].characterData);// matches the properties in our master state with our new state
+    this.setState(this.combineObjects(this.state, newData));// Updates react's state with a combined version of the original state and our new data
+    this.syncState('reactState');// Updates localStorage state by what reactState thinks is correct
   },
-
+  // The default character sheet with one field to set if it is passed a GUID to set into the character sheet wrapper ID
   defaultCharacterSheet(characterQuery) {
-    const saveAlert = this.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '';
+    // const saveAlert = Object.prototype.hasOwnProperty.call(this, 'state') ? (this.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '') :
+    // (this.localStorage.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '');
+    var saveAlert = '';
+    if(Object.prototype.hasOwnProperty.call(this, 'state') && this.state !== null){
+      if(Object.prototype.hasOwnProperty.call(this.state, 'documentData')){
+        saveAlert = this.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '';
+      }
+    }
+    else if(Object.prototype.hasOwnProperty.call(localStorage, 'state')  && localStorage.state !== null){
+      if(Object.prototype.hasOwnProperty.call(localStorage.state, 'documentData')){
+        saveAlert = localStorage.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '';
+      }
+    }
     if (characterQuery) currentCharacterGUID = characterQuery;
     return (
       <div name="character-sheet-wrapper" id={currentCharacterGUID}>
@@ -180,7 +200,7 @@ const Character = React.createClass(({
                     className="character-sheet-field"
                     type="text"
                     placeholder="Nedberth the Red"
-                    onChange={this.handleChange}
+                    onChange={this.handleChangingCharacterSheetElement}
                   />
                 </Form>
               </Col>
@@ -215,7 +235,7 @@ const Character = React.createClass(({
                     className="character-sheet-field"
                     type="text"
                     placeholder="Soldier"
-                    onChange={this.handleChange}
+                    onChange={this.handleChangingCharacterSheetElement}
                   />
                 </Form>
               </Col>
@@ -232,7 +252,7 @@ const Character = React.createClass(({
                   className="character-sheet-field"
                   componentClass="textarea"
                   placeholder="I'm always polite and respectful. Also, I don't trust my gut feelings so I tend to wait for others to act."
-                  onChange={this.handleChange}
+                  onChange={this.handleChangingCharacterSheetElement}
                 />
               </Col>
               {/* Character ideals field and label*/}
@@ -247,7 +267,7 @@ const Character = React.createClass(({
                   className="character-sheet-field"
                   componentClass="textarea"
                   placeholder="Respect. People deserve to be treated with dignity and courtesy."
-                  onChange={this.handleChange}
+                  onChange={this.handleChangingCharacterSheetElement}
                 />
               </Col>
             </Row>
@@ -262,7 +282,7 @@ const Character = React.createClass(({
                   className="character-sheet-field"
                   componentClass="textarea"
                   placeholder="I have three cousins - Gundred, Tharden and Nundro Rockseeker - who are my friends and cherished clan members."
-                  onChange={this.handleChange}
+                  onChange={this.handleChangingCharacterSheetElement}
                 />
               </Col>
             </Row>
@@ -277,7 +297,7 @@ const Character = React.createClass(({
                   className="character-sheet-field"
                   componentClass="textarea"
                   placeholder="I secretly wonder weather the gods care about mortal affairs at all."
-                  onChange={this.handleChange}
+                  onChange={this.handleChangingCharacterSheetElement}
                 />
               </Col>
             </Row>
@@ -295,7 +315,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="fighter">Fighter</option>
                           <option value="wizard">Wizard</option>
@@ -316,7 +336,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="lawful-good">Lawful Good</option>
                           <option value="lawful-neutral">Lawful Neutral</option>
@@ -341,7 +361,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -363,7 +383,7 @@ const Character = React.createClass(({
                           id="exp-field"
                           type="text"
                           placeholder="0"
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         />
                       </Col>
                     </FormGroup>
@@ -388,7 +408,7 @@ const Character = React.createClass(({
                           id="initiative-field"
                           type="text"
                           placeholder="-1"
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         />
                       </Col>
                     </FormGroup>
@@ -404,7 +424,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           type="text"
                           placeholder="25 Feet"
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         />
                       </Col>
                     </FormGroup>
@@ -420,7 +440,7 @@ const Character = React.createClass(({
                           id="hp-field"
                           type="text"
                           placeholder="11"
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         />
                       </Col>
                     </FormGroup>
@@ -436,7 +456,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -453,7 +473,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="8">8</option>
                           <option value="7">7</option>
@@ -483,7 +503,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -498,7 +518,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -519,7 +539,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -534,7 +554,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -555,7 +575,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -570,7 +590,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -591,7 +611,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -606,7 +626,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -627,7 +647,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -642,7 +662,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -663,7 +683,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="1">1</option>
                           <option value="2">2</option>
@@ -678,7 +698,7 @@ const Character = React.createClass(({
                           className="character-sheet-field"
                           componentClass="select"
                           placeholder=""
-                          onChange={this.handleChange}
+                          onChange={this.handleChangingCharacterSheetElement}
                         >
                           <option value="0">+0</option>
                           <option value="1">+1</option>
@@ -701,42 +721,25 @@ const Character = React.createClass(({
 
     );
   },
-  propName(object, propertyValue) {
-    let res = '';
-    for (const i in object) {
-      if (typeof object[i] === 'object') {
-        if (this.propName(object[i], propertyValue)) {
-          return res;
-        }
-      } else if (object[i] === propertyValue) {
-        res = i;
-        return res;
-      }
-    }
-    return undefined;
-  },
   renderContent() { // Right now this file handles all the subroutes for /characters
     if (subroute === 'new') { // If we are creating a new character
-      return (
-       this.defaultCharacterSheet()
-      );
+      return this.defaultCharacterSheet(); // Default character sheet with no GUID passed
     } else if (subroute === 'load') {
-      const aDefaultCharacterSheet = this.defaultCharacterSheet(this.props.location.query.guid);
-      return aDefaultCharacterSheet;
-    } else if (subroute === undefined) {
+      return this.defaultCharacterSheet(this.props.location.query.guid); // Return a sheet filled with the GUID passed in a URL query string
+    } else if (subroute === undefined) { // This subroute is accessed when we are displaying all our characters in a table
       /* This is the default route
       for /characters with no subroute. Just display all the characters here*/
       const characterRows = [];
       const allCharacters = localStorage.state === undefined ? {} : JSON.parse(localStorage.state); // Grab all the characters from localstorage
-      delete allCharacters.documentData;
+      delete allCharacters.documentData; // Get rid of the document data because that is used for only effects on that page
 
-      if (localStorage.state !== undefined) {
+      if (localStorage.state !== undefined) { // Only want to display characters if localstroage contains some
         let characterData = {};
         // Render the characters only if there are actually some to render
-        Object.keys(allCharacters).forEach((characterGUID, index) => {
-          characterData = allCharacters[characterGUID].characterData;
-          characterRows.push(
-            <tr key={allCharacters[index]} onClick={() => { this.handleTRClick(characterGUID); }}>
+        Object.keys(allCharacters).forEach((characterGUID, index) => { // Grabbing all the root properties which are set by a GUID named property
+          characterData = allCharacters[characterGUID].characterData; // characterData is what we are concerned with for each of the character GUIDs
+          characterRows.push( // Add the character data one at a time in the form of table rows filled with just a name and level but have a click method attached
+            <tr key={allCharacters[index]} onClick={() => { this.handleTRClick(characterGUID);}}>
               <td >{characterData['name-field']}</td>
               <td>{characterData['level-dropdown']}</td>
             </tr>);
@@ -762,16 +765,16 @@ const Character = React.createClass(({
               <Col md={2} />
               <Col md={8}>
                 <Table striped bordered condensed hover>
-                   <thead>
+                  <thead>
                     <tr>
                       <th>Character Name</th>
                       <th>Level</th>
                     </tr>
                   </thead>
-                   <tbody>
+                  <tbody>
                     {characterRows}
                   </tbody>
-                 </Table>
+                </Table>
               </Col>
               <Col md={2} />
             </Row>
@@ -779,6 +782,7 @@ const Character = React.createClass(({
         </div>
       );
     }
+    // If we have no idea what we are being directed do, this is the 404 return
     return (
       <p>bad url</p>
     );
