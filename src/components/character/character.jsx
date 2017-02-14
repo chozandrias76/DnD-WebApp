@@ -26,18 +26,17 @@ let currentCharacterGUID = '';
 let subroute = '';
 const Character = React.createClass(({
   getInitialState() { // Set in state when the page loads
-  if(this.state === null) { // If nothing is in state, 
-    if(localStorage !== undefined && localStorage.state !== undefined){ // And if localstorage contains state
-      return JSON.parse(localStorage.state); // Make our state match localstorage
-    } else { // Create a new state with no characters
+    if (this.state === null) { // If nothing is in state,
+      if (localStorage !== undefined && localStorage.state !== undefined) { // And if localstorage contains state
+        return JSON.parse(localStorage.state); // Make our state match localstorage
+      }  // Create a new state with no characters
       return {
         documentData: {
           showSaveAlert: false,
-        }
+        },
       };
     }
-  }
-      return this.state; // If we already have a state, we don't want to return anything different
+    return this.state; // If we already have a state, we don't want to return anything different
   },
   componentWillMount() { // Called when a react component is about to mount
     let initialData = {};
@@ -74,20 +73,20 @@ const Character = React.createClass(({
     */
     this.syncCharacterSheetValues();
   },
-  syncCharacterSheetValues(){
+  syncCharacterSheetValues() {
     if (this.props.params.subroute === 'load') { // Only need to do things if we mounted the component after loading a character
-          document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID; // Updates the page with the proper guid for the loaded sheet
-          const localStorageState = JSON.parse(localStorage.state); // Make a copy of the local storage state since you can't directly edit it as an object only as a string
-          delete localStorageState.documentData; // Don't have anything to do with the document data right now
-          if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
-            const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
-            Object.keys(stateFilledCharacterData).forEach((data) => { // For every property in the character data
-              //Set our fields in the character sheet to match the data stored in local storage for that character
-              document.getElementById(this.reportPropName(stateFilledCharacterData, stateFilledCharacterData[data])).value = stateFilledCharacterData[data];
-            });
-          }
-        }
-        this.syncState('reactState');
+      document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID; // Updates the page with the proper guid for the loaded sheet
+      const localStorageState = JSON.parse(localStorage.state); // Make a copy of the local storage state since you can't directly edit it as an object only as a string
+      delete localStorageState.documentData; // Don't have anything to do with the document data right now
+      if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
+        const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
+        Object.keys(stateFilledCharacterData).forEach((data) => { // For every property in the character data
+              // Set our fields in the character sheet to match the data stored in local storage for that character
+          document.getElementById(this.reportPropName(stateFilledCharacterData, stateFilledCharacterData[data])).value = stateFilledCharacterData[data];
+        });
+      }
+    }
+    this.syncState('reactState');
   },
   reportPropName(object, propertyValue) {
     let res = '';
@@ -112,7 +111,7 @@ const Character = React.createClass(({
   },
   /* eslint-disable no-param-reassign*/
   combineObjects(obj, src) { // Better than the vanilla method of copying properties because it updates the values instead of overwriting properties
-      Object.keys(src).forEach((key) => { obj[key] = src[key]; });
+    Object.keys(src).forEach((key) => { obj[key] = src[key]; });
     return obj;
   },
   /* eslint-enable no-param-reassign*/
@@ -157,7 +156,7 @@ const Character = React.createClass(({
   handleChangingCharacterSheetElement(e) {
     const characterSheetGUID = document.getElementsByName('character-sheet-wrapper')[0].id; // Sets the ID stored in our react element to the element ID of our root div
     const newData = { [characterSheetGUID]: { characterData: { [e.target.id]: e.target.value } } }; // Sets the data in a format that matches with state and localstorage.state
-    //console.log(this.state)
+    // console.log(this.state)
     newData[characterSheetGUID].characterData = this.combineObjects(this.state[characterSheetGUID].characterData, newData[characterSheetGUID].characterData);// matches the properties in our master state with our new state
     this.setState(this.combineObjects(this.state, newData));// Updates react's state with a combined version of the original state and our new data
     this.syncState('reactState');// Updates localStorage state by what reactState thinks is correct
@@ -166,14 +165,13 @@ const Character = React.createClass(({
   defaultCharacterSheet(characterQuery) {
     // const saveAlert = Object.prototype.hasOwnProperty.call(this, 'state') ? (this.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '') :
     // (this.localStorage.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '');
-    var saveAlert = '';
-    if(Object.prototype.hasOwnProperty.call(this, 'state') && this.state !== null){
-      if(Object.prototype.hasOwnProperty.call(this.state, 'documentData')){
+    let saveAlert = '';
+    if (Object.prototype.hasOwnProperty.call(this, 'state') && this.state !== null) {
+      if (Object.prototype.hasOwnProperty.call(this.state, 'documentData')) {
         saveAlert = this.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '';
       }
-    }
-    else if(Object.prototype.hasOwnProperty.call(localStorage, 'state')  && localStorage.state !== null){
-      if(Object.prototype.hasOwnProperty.call(localStorage.state, 'documentData')){
+    } else if (Object.prototype.hasOwnProperty.call(localStorage, 'state') && localStorage.state !== null) {
+      if (Object.prototype.hasOwnProperty.call(localStorage.state, 'documentData')) {
         saveAlert = localStorage.state.documentData.showSaveAlert ? <Alert bsStyle="warning" width="100px"><strong>Character Saved!</strong></Alert> : '';
       }
     }
@@ -400,9 +398,37 @@ const Character = React.createClass(({
                     }}
                   >
                     <FormGroup >
+                      <Col componentClass={ControlLabel} md={2}>Init</Col>
+                      <Col md={10}>
+                        <FormControl
+                          id="level-dropdown"
+                          className="character-sheet-field"
+                          componentClass="select"
+                          placeholder="0"
+                          onChange={this.handleChangingCharacterSheetElement}
+                        >
+                          <option value="-4">-4</option>
+                          <option value="-3">-3</option>
+                          <option value="-2">-2</option>
+                          <option value="-1">-1</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                        </FormControl>
+                      </Col>
+                    </FormGroup>
+                  </Form>
+                  <Form
+                    horizontal
+                    style={{
+                      marginBottom: 0,
+                    }}
+                  >
+                    <FormGroup >
                       <Col componentClass={ControlLabel} md={2}>Init.</Col>
                       <Col md={10}>
-
                         <FormControl
                           className="character-sheet-field"
                           id="initiative-field"
@@ -520,11 +546,15 @@ const Character = React.createClass(({
                           placeholder=""
                           onChange={this.handleChangingCharacterSheetElement}
                         >
-                          <option value="0">+0</option>
-                          <option value="1">+1</option>
-                          <option value="2">+2</option>
-                          <option value="3">+3</option>
-                          <option value="4">+4</option>
+                          <option value="-4">-4</option>
+                          <option value="-3">-3</option>
+                          <option value="-2">-2</option>
+                          <option value="-1">-1</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
                         </FormControl>
                       </Col>
                     </FormGroup>
@@ -556,11 +586,15 @@ const Character = React.createClass(({
                           placeholder=""
                           onChange={this.handleChangingCharacterSheetElement}
                         >
-                          <option value="0">+0</option>
-                          <option value="1">+1</option>
-                          <option value="2">+2</option>
-                          <option value="3">+3</option>
-                          <option value="4">+4</option>
+                          <option value="-4">-4</option>
+                          <option value="-3">-3</option>
+                          <option value="-2">-2</option>
+                          <option value="-1">-1</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
                         </FormControl>
                       </Col>
                     </FormGroup>
@@ -592,11 +626,15 @@ const Character = React.createClass(({
                           placeholder=""
                           onChange={this.handleChangingCharacterSheetElement}
                         >
-                          <option value="0">+0</option>
-                          <option value="1">+1</option>
-                          <option value="2">+2</option>
-                          <option value="3">+3</option>
-                          <option value="4">+4</option>
+                          <option value="-4">-4</option>
+                          <option value="-3">-3</option>
+                          <option value="-2">-2</option>
+                          <option value="-1">-1</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
                         </FormControl>
                       </Col>
                     </FormGroup>
@@ -628,11 +666,15 @@ const Character = React.createClass(({
                           placeholder=""
                           onChange={this.handleChangingCharacterSheetElement}
                         >
-                          <option value="0">+0</option>
-                          <option value="1">+1</option>
-                          <option value="2">+2</option>
-                          <option value="3">+3</option>
-                          <option value="4">+4</option>
+                          <option value="-4">-4</option>
+                          <option value="-3">-3</option>
+                          <option value="-2">-2</option>
+                          <option value="-1">-1</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
                         </FormControl>
                       </Col>
                     </FormGroup>
@@ -664,11 +706,15 @@ const Character = React.createClass(({
                           placeholder=""
                           onChange={this.handleChangingCharacterSheetElement}
                         >
-                          <option value="0">+0</option>
-                          <option value="1">+1</option>
-                          <option value="2">+2</option>
-                          <option value="3">+3</option>
-                          <option value="4">+4</option>
+                          <option value="-4">-4</option>
+                          <option value="-3">-3</option>
+                          <option value="-2">-2</option>
+                          <option value="-1">-1</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
                         </FormControl>
                       </Col>
                     </FormGroup>
@@ -685,11 +731,15 @@ const Character = React.createClass(({
                           placeholder=""
                           onChange={this.handleChangingCharacterSheetElement}
                         >
+                          <option value="-4">-4</option>
+                          <option value="-3">-3</option>
+                          <option value="-2">-2</option>
+                          <option value="-1">-1</option>
+                          <option value="0">0</option>
                           <option value="1">1</option>
                           <option value="2">2</option>
                           <option value="3">3</option>
                           <option value="4">4</option>
-                          <option value="5">5</option>
                         </FormControl>
                       </Col>
                       <Col md={4}>
@@ -700,11 +750,15 @@ const Character = React.createClass(({
                           placeholder=""
                           onChange={this.handleChangingCharacterSheetElement}
                         >
-                          <option value="0">+0</option>
-                          <option value="1">+1</option>
-                          <option value="2">+2</option>
-                          <option value="3">+3</option>
-                          <option value="4">+4</option>
+                          <option value="-4">-4</option>
+                          <option value="-3">-3</option>
+                          <option value="-2">-2</option>
+                          <option value="-1">-1</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
                         </FormControl>
                       </Col>
                     </FormGroup>
@@ -739,7 +793,7 @@ const Character = React.createClass(({
         Object.keys(allCharacters).forEach((characterGUID, index) => { // Grabbing all the root properties which are set by a GUID named property
           characterData = allCharacters[characterGUID].characterData; // characterData is what we are concerned with for each of the character GUIDs
           characterRows.push( // Add the character data one at a time in the form of table rows filled with just a name and level but have a click method attached
-            <tr key={allCharacters[index]} onClick={() => { this.handleTRClick(characterGUID);}}>
+            <tr key={allCharacters[index]} onClick={() => { this.handleTRClick(characterGUID); }}>
               <td >{characterData['name-field']}</td>
               <td>{characterData['level-dropdown']}</td>
             </tr>);
