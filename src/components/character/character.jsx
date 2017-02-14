@@ -25,11 +25,11 @@ const { Link } = require('react-router');
 let currentCharacterGUID = '';
 let subroute = '';
 const Character = React.createClass(({
-  getInitialState() { // Set in state that the save alert isn't drawing when the page loads
-  if(this.state === null) {
-    if(localStorage !== undefined && localStorage.state !== undefined){
-      return JSON.parse(localStorage.state);
-    } else {
+  getInitialState() { // Set in state when the page loads
+  if(this.state === null) { // If nothing is in state, 
+    if(localStorage !== undefined && localStorage.state !== undefined){ // And if localstorage contains state
+      return JSON.parse(localStorage.state); // Make our state match localstorage
+    } else { // Create a new state with no characters
       return {
         documentData: {
           showSaveAlert: false,
@@ -37,9 +37,9 @@ const Character = React.createClass(({
       };
     }
   }
-      return this.state;
+      return this.state; // If we already have a state, we don't want to return anything different
   },
-  componentWillMount() {
+  componentWillMount() { // Called when a react component is about to mount
     let initialData = {};
 
     if (this.props.params.subroute === 'new') {
@@ -60,42 +60,40 @@ const Character = React.createClass(({
       this.syncState('localStorageState');
     }
   },
-  componentDidMount() {
-    if (this.props.params.subroute === 'load') {
-      document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID;
-      const localStorageState = JSON.parse(localStorage.state);
-      delete localStorageState.documentData;
-      //this.setState(localStorageState[currentCharacterGUID].characterData);
-      if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
-        const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
-        Object.keys(stateFilledCharacterData).forEach((data, index) => { // For every property in the character data
-          document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data].toString())).value = stateFilledCharacterData[data]; //
-        });
-      }
-      console.log(this.state);
-    }
+  componentDidMount() { // Is called after the react component did mount
+    /*
+    Right now the only thing that needs to happen after a character component is mounted is load in data from state
+    to appear properly on the fields from the last time it was edited
+    */
+    this.syncCharacterSheetValues();
   },
-  componentDidUpdate() {
-    if (this.props.params.subroute === 'load') {
-      document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID;
-      const localStorageState = JSON.parse(localStorage.state);
-      delete localStorageState.documentData;
-      if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
-        const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
-        // console.log(stateFilledCharacterData);
-        Object.keys(stateFilledCharacterData).forEach((data) => { // For every property in the character data
-          // console.log(this.propName(stateFilledCharacterData, stateFilledCharacterData[data]));
-          document.getElementById(this.propName(stateFilledCharacterData, stateFilledCharacterData[data])).value = stateFilledCharacterData[data]; //
-        });
-      }
-    }
-    this.syncState('reactState');
+  componentDidUpdate() { // Is called after page updates in any way
+    /*
+    Right now the only thing that needs to happen after a character component is updated is load in data from state
+    to appear properly on the fields from the last time it was edited
+    */
+    this.syncCharacterSheetValues();
   },
-  propName(object, propertyValue) {
+  syncCharacterSheetValues(){
+    if (this.props.params.subroute === 'load') { // Only need to do things if we mounted the component after loading a character
+          document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID; // Updates the page with the proper guid for the loaded sheet
+          const localStorageState = JSON.parse(localStorage.state); // Make a copy of the local storage state since you can't directly edit it as an object only as a string
+          delete localStorageState.documentData; // Don't have anything to do with the document data right now
+          if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
+            const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
+            Object.keys(stateFilledCharacterData).forEach((data) => { // For every property in the character data
+              //Set our fields in the character sheet to match the data stored in local storage for that character
+              document.getElementById(this.reportPropName(stateFilledCharacterData, stateFilledCharacterData[data])).value = stateFilledCharacterData[data];
+            });
+          }
+        }
+        this.syncState('reactState');
+  },
+  reportPropName(object, propertyValue) {
     let res = '';
     for (const i in object) {
       if (typeof object[i] === 'object') {
-        if (this.propName(object[i], propertyValue)) {
+        if (this.reportPropName(object[i], propertyValue)) {
           return res;
         }
       } else if (object[i] === propertyValue) {
@@ -113,13 +111,12 @@ const Character = React.createClass(({
     }
   },
   /* eslint-disable no-param-reassign*/
-  combineObjects(obj, src) {
-    // Object.keys(src).forEach((key) => { obj.assign(obj[key], src[key]); });
-    Object.keys(src).forEach((key) => { obj[key] = src[key]; });
+  combineObjects(obj, src) { // Better than the vanilla method of copying properties because it updates the values instead of overwriting properties
+      Object.keys(src).forEach((key) => { obj[key] = src[key]; });
     return obj;
   },
   /* eslint-enable no-param-reassign*/
-  toggleSaveAlert() {
+  toggleSaveAlert() { // Toggles on and off our save alert when the button is pressed.
     if (Object.prototype.hasOwnProperty.call(this.state.documentData, 'showSaveAlert')) {
       if (this.state.documentData.showSaveAlert) {
         this.setState({ documentData: {
