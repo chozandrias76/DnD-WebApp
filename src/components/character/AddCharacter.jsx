@@ -15,7 +15,11 @@ const { browserHistory } = require('react-router');
 
 const CharacterComponent = require('./character.jsx');
 
+
 const CharacterSheetTextFieldComponent = React.createClass({
+  handleChangingCharacterSheetElement(e) {
+    this.props.onChange(e);
+  },
   render() {
     return (
       <Row className="character-sheet-row">
@@ -28,7 +32,7 @@ const CharacterSheetTextFieldComponent = React.createClass({
             className="character-sheet-field"
             type="text"
             placeholder={this.props.placeHolder}
-            onChange={CharacterComponent.handleChangingCharacterSheetElement}
+            onChange={this.handleChangingCharacterSheetElement}
           />
         </Col>
       </Row>
@@ -45,7 +49,7 @@ const CharacterSheetStatDropdownComponent = React.createClass({
           className="character-sheet-field"
           componentClass="select"
           placeholder=""
-          onChange={CharacterComponent.handleChangingCharacterSheetElement}
+          onChange={this.handleChangingCharacterSheetElement}
         >
           <option value="-4">-4</option>
           <option value="-3">-3</option>
@@ -70,7 +74,7 @@ const CharacterSheetStatDropdownComponent = React.createClass({
             className="character-sheet-field"
             componentClass="select"
             placeholder=""
-            onChange={CharacterComponent.handleChangingCharacterSheetElement}
+            onChange={this.handleChangingCharacterSheetElement}
           >
             <option value="1">1</option>
             <option value="2">2</option>
@@ -164,11 +168,11 @@ const SaveButton = React.createClass({
 
 const AddCharacterComponent = React.createClass({
   getInitialState() { // Set in state when the page loads
-    if (this.state === null) { // If nothing is in state,
-      if (localStorage !== undefined && localStorage.state !== undefined) { // And if localstorage contains state
-        return JSON.parse(localStorage.state); // Make our state match localstorage
-      }
-    }
+    // if (this.state === null) { // If nothing is in state,
+    //   if (localStorage !== undefined && localStorage.state !== undefined) { // And if localstorage contains state
+    //     return JSON.parse(localStorage.state); // Make our state match localstorage
+    //   }
+    // }
     return this.state; // If we already have a state, we don't want to return anything different
   },
 
@@ -183,7 +187,7 @@ const AddCharacterComponent = React.createClass({
       },
     };
     this.setState(newState);
-    this.syncState('reactState');
+    //this.syncState('reactState');
   },
 
   componentDidMount() { // Is called after the react component did mount
@@ -260,7 +264,6 @@ const AddCharacterComponent = React.createClass({
     }
     return undefined;
   },
-
   syncState(authoringState) {
     if (authoringState === 'localStorageState') {
       this.setState(JSON.parse(localStorage.state));
@@ -270,6 +273,16 @@ const AddCharacterComponent = React.createClass({
   },
   handleSaveClick() {
     this.saveCharacterSheet();
+  },
+  handleChangingCharacterSheetElement(e) {
+    console.log(this.state)
+    const characterSheetGUID = document.getElementsByName('character-sheet-wrapper')[0].id; // Sets the ID stored in our react element to the element ID of our root div
+    const newData = { [characterSheetGUID]: { characterData: { [e.target.id]: e.target.value } } }; // Sets the data in a format that matches with state and localstorage.state
+    newData[characterSheetGUID].characterData = this.combineObjects(this.state[characterSheetGUID].characterData, newData[characterSheetGUID].characterData);// matches the properties in our master state with our new state
+    this.setState(this.combineObjects(this.state, newData));// Updates react's state with a combined version of the original state and our new data
+    // if (hasBeenSaved) { // Only if a user has saved the first time does the condition pass
+    //   this.syncState('reactState'); // Updates localStorage state by what reactState thinks is correct
+    // }
   },
   // The default character sheet with one field to set if it is passed a GUID to set into the character sheet wrapper ID
   defaultCharacterSheet() {
@@ -285,17 +298,17 @@ const AddCharacterComponent = React.createClass({
           <h1>Create Character</h1>
           <Form horizontal id="character-sheet-body" >
             {/* Name entry field and label*/}
-            <CharacterSheetTextFieldComponent labelName="Name" divID="name-field" placeHolder="Nedberth the Red" onChange={CharacterComponent.handleChangingCharacterSheetElement} />
+            <CharacterSheetTextFieldComponent labelName="Name" divID="name-field" placeHolder="Nedberth the Red" onChange={this.handleChangingCharacterSheetElement} />
             {/* Character background field and label*/}
-            <CharacterSheetTextFieldComponent labelName="Background" divID="background-field" placeHolder="Soldier" onChange={CharacterComponent.handleChangingCharacterSheetElement} />
+            <CharacterSheetTextFieldComponent labelName="Background" divID="background-field" placeHolder="Soldier" onChange={this.handleChangingCharacterSheetElement} />
             {/* Character personality traits field and label*/}
-            <CharacterSheetTextFieldComponent labelName="Personality Traits" divID="personality-field" onChange={CharacterComponent.handleChangingCharacterSheetElement} placeHolder="I'm always polite and respectful. Also, I don't trust my gut feelings so I tend to wait for others to act." />
+            <CharacterSheetTextFieldComponent labelName="Personality Traits" divID="personality-field" onChange={this.handleChangingCharacterSheetElement} placeHolder="I'm always polite and respectful. Also, I don't trust my gut feelings so I tend to wait for others to act." />
             {/* Character ideals field and label*/}
-            <CharacterSheetTextFieldComponent labelName="Ideals" divID="ideals-field" onChange={CharacterComponent.handleChangingCharacterSheetElement} placeHolder="Respect. People deserve to be treated with dignity and courtesy." />
+            <CharacterSheetTextFieldComponent labelName="Ideals" divID="ideals-field" onChange={this.handleChangingCharacterSheetElement} placeHolder="Respect. People deserve to be treated with dignity and courtesy." />
             {/* Character bonds field and label*/}
-            <CharacterSheetTextFieldComponent labelName="Bonds" divID="bonds-field" onChange={CharacterComponent.handleChangingCharacterSheetElement} placeHolder="I have three cousins - Gundred, Tharden and Nundro Rockseeker - who are my friends and cherished clan members." />
+            <CharacterSheetTextFieldComponent labelName="Bonds" divID="bonds-field" onChange={this.handleChangingCharacterSheetElement} placeHolder="I have three cousins - Gundred, Tharden and Nundro Rockseeker - who are my friends and cherished clan members." />
             {/* Character flaws field and label*/}
-            <CharacterSheetTextFieldComponent labelName="Flaws" divID="flaws-field" onChange={CharacterComponent.handleChangingCharacterSheetElement} placeHolder="I secretly wonder weather the gods care about mortal affairs at all." />
+            <CharacterSheetTextFieldComponent labelName="Flaws" divID="flaws-field" onChange={this.handleChangingCharacterSheetElement} placeHolder="I secretly wonder weather the gods care about mortal affairs at all." />
             <Row className="character-sheet-row">
               <Col md={2} />
               <Col md={4}>
@@ -308,7 +321,7 @@ const AddCharacterComponent = React.createClass({
                       className="character-sheet-field"
                       componentClass="select"
                       placeholder=""
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     >
                       <option value="fighter">Fighter</option>
                       <option value="wizard">Wizard</option>
@@ -325,7 +338,7 @@ const AddCharacterComponent = React.createClass({
                       className="character-sheet-field"
                       componentClass="select"
                       placeholder=""
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     >
                       <option value="lawful-good">Lawful Good</option>
                       <option value="lawful-neutral">Lawful Neutral</option>
@@ -346,7 +359,7 @@ const AddCharacterComponent = React.createClass({
                       className="character-sheet-field"
                       componentClass="select"
                       placeholder=""
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     >
                       <option value="1">1</option>
                       <option value="2">2</option>
@@ -363,7 +376,7 @@ const AddCharacterComponent = React.createClass({
                       id="exp-field"
                       type="text"
                       placeholder="0"
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     />
                   </Col>
                 </FormGroup>
@@ -378,7 +391,7 @@ const AddCharacterComponent = React.createClass({
                       className="character-sheet-field"
                       componentClass="select"
                       placeholder="0"
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     >
                       <option value="-4">-4</option>
                       <option value="-3">-3</option>
@@ -398,7 +411,7 @@ const AddCharacterComponent = React.createClass({
                       id="initiative-field"
                       type="text"
                       placeholder="-1"
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     />
                   </Col>
                   {/* Character speed field and label*/}
@@ -409,7 +422,7 @@ const AddCharacterComponent = React.createClass({
                       className="character-sheet-field"
                       type="text"
                       placeholder="25 Feet"
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     />
                   </Col>
                   {/* Character max HP field and label*/}
@@ -420,7 +433,7 @@ const AddCharacterComponent = React.createClass({
                       id="hp-field"
                       type="text"
                       placeholder="11"
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     />
                   </Col>
                   {/* Character hitdice and dice type dropdown and label*/}
@@ -431,7 +444,7 @@ const AddCharacterComponent = React.createClass({
                       className="character-sheet-field"
                       componentClass="select"
                       placeholder="0"
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     >
                       <option value="0">0</option>
                       <option value="1">1</option>
@@ -449,7 +462,7 @@ const AddCharacterComponent = React.createClass({
                       className="character-sheet-field"
                       componentClass="select"
                       placeholder=""
-                      onChange={CharacterComponent.handleChangingCharacterSheetElement}
+                      onChange={this.handleChangingCharacterSheetElement}
                     >
                       <option value="8">8</option>
                       <option value="7">7</option>
