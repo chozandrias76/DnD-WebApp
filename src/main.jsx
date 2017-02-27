@@ -4,6 +4,11 @@ const ReactDOM = require('react-dom');
 const { Grid, Row, Col } = require('react-bootstrap');
 const { Link, Router, Route, browserHistory } = require('react-router');
 const CharacterComponent = require('./components/character/character.jsx');
+const CharacterListComponent = require('./components/character/CharacterList.jsx');
+const AddCharacterComponent = require('./components/character/AddCharacter.jsx');
+const EditCharacterComponent = require('./components/character/EditCharacter.jsx');
+
+
 
 require('./stylesheets/styles.scss');
 
@@ -65,9 +70,12 @@ const MainComponent = React.createClass(({ // This is the splash page for the we
 ReactDOM.render((
   <Router history={browserHistory}>
     <Route path="public" component={MainComponent} />
-    <Route path="characters" component={CharacterComponent} />
-    <Route path="characters/:subroute" component={CharacterComponent} />
-    <Route path="characters/:subroute/:guid" component={CharacterComponent} />
+    <Route path="characters" component={CharacterListComponent} />
+    <Route path="characters/new" component={AddCharacterComponent} />
+    <Route path="characters/load" component={EditCharacterComponent} />
+
+    {/*<Route path="characters/:subroute" component={CharacterComponent} />
+    <Route path="characters/:subroute/:guid" component={CharacterComponent} />*/}
     <Route path="*" component={NoMatch} />
   </Router>
 ), document.getElementById('react-entry'));
