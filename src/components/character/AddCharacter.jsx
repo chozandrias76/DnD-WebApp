@@ -148,14 +148,16 @@ const SaveButton = React.createClass({
     //   }
     // }
   },
-
-  render() {
-    if (this.state.documentData.showSaveButton) {
-      return (// Route is not set up on this page so <Links> and <a href> don't work with react-router
-        <Button bsStyle="primary" onClick={() => { browserHistory.push({ pathname: 'characters/load', query: { guid } }); }} style={{ position: 'absolute', zIndex: 1 }}>Save</Button>
-      );
+  handleSaveClick(){
+    if (typeof this.props.onClick === 'function') {
+      this.props.onClick();
     }
-    return null;
+    else console.log(this.props);
+  },
+  render() {
+    return (// Route is not set up on this page so <Links> and <a href> don't work with react-router
+      <Button bsStyle="primary" onClick={this.handleSaveClick} style={{ position: 'absolute', zIndex: 1 }}>Save</Button>
+      );
   },
 
 });
@@ -171,7 +173,17 @@ const AddCharacterComponent = React.createClass({
   },
 
   componentWillMount() { // Called when a react component is about to mount
+    let initialData = {};
 
+    initialData = this.gUIDGenerator();
+
+    const newState = {
+      [initialData]: {
+        characterData: {},
+      },
+    };
+    this.setState(newState);
+    this.syncState('reactState');
   },
 
   componentDidMount() { // Is called after the react component did mount
@@ -179,7 +191,7 @@ const AddCharacterComponent = React.createClass({
     Right now the only thing that needs to happen after a character component is mounted is load in data from state
     to appear properly on the fields from the last time it was edited
     */
-    this.syncCharacterSheetValues();
+    // this.syncCharacterSheetValues();
   },
 
   componentDidUpdate() { // Is called after page updates in any way
@@ -187,10 +199,77 @@ const AddCharacterComponent = React.createClass({
     Right now the only thing that needs to happen after a character component is updated is load in data from state
     to appear properly on the fields from the last time it was edited
     */
-    this.syncCharacterSheetValues();
+    // this.syncCharacterSheetValues();
   },
   saveCharacterSheet(gUID) {
-    CharacterComponent.syncCharacterSheetValues();
+    this.syncCharacterSheetValues();
+  },
+  syncCharacterSheetValues() {
+    // if (this.props.params.subroute === 'load') { // Only need to do things if we mounted the component after loading a character
+    // document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID; // Updates the page with the proper guid for the loaded sheet
+    const localStorageState = JSON.parse(localStorage.state); // Make a copy of the local storage state since you can't directly edit it as an object only as a string
+    if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
+      const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
+      Object.keys(stateFilledCharacterData).forEach((data) => { // For every property in the character data
+          // Set our fields in the character sheet to match the data stored in local storage for that character
+        document.getElementById(this.reportPropName(stateFilledCharacterData, stateFilledCharacterData[data])).value = stateFilledCharacterData[data];
+      });
+    }
+    // }
+    // if (hasBeenSaved) { // Only if a user has saved the first time does the condition pass
+    this.syncState('reactState'); // Updates localStorage state by what reactState thinks is correct
+    // }
+  },
+  /* eslint-disable no-param-reassign*/
+  combineObjects(obj, src) { // Better than the vanilla method of copying properties because it updates the values instead of overwriting properties
+    Object.keys(src).forEach((key) => { obj[key] = src[key]; });
+    return obj;
+  }, /* eslint-enable no-param-reassign*/
+
+  // 4-character generator
+  generateFour() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+  },
+
+  // Guid generator function. Not really needed but, good plan if the project expands
+  gUIDGenerator() {
+    const gUID = [];
+    for (let i = 0; i < 7; i += 1) {
+      const nextPart = this.generateFour();
+      gUID.push(nextPart);
+      if (i > 0 && i < 5) {
+        gUID.push('-');
+      }
+    }
+    return gUID.join('');
+  },
+
+  reportPropName(object, propertyValue) {
+    let res = '';
+    for (const i in object) {
+      if (typeof object[i] === 'object') {
+        if (this.reportPropName(object[i], propertyValue)) {
+          return res;
+        }
+      } else if (object[i] === propertyValue) {
+        res = i;
+        return res;
+      }
+    }
+    return undefined;
+  },
+
+  syncState(authoringState) {
+    if (authoringState === 'localStorageState') {
+      this.setState(JSON.parse(localStorage.state));
+    } else if (authoringState === 'reactState') {
+      localStorage.state = this.state === null ? '{}' : JSON.stringify(this.combineObjects(localStorage.state === undefined ? {} : JSON.parse(localStorage.state), this.state));
+    }
+  },
+  handleSaveClick() {
+    this.saveCharacterSheet();
   },
   // The default character sheet with one field to set if it is passed a GUID to set into the character sheet wrapper ID
   defaultCharacterSheet() {
