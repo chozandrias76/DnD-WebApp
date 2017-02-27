@@ -200,7 +200,7 @@ const SaveAlert = React.createClass({
       }
     }
   },
-  
+
   render() {
     if (this.state.documentData.showSaveAlert) {
       return (
@@ -251,7 +251,7 @@ const SaveButton = React.createClass({
   render() {
     if (this.state.documentData.showSaveButton) {
       return (
-        <Button bsStyle="primary" onClick={ () => { this.toggleSaveButton(); this.props.onClick(); }} style={{ position: 'absolute', zIndex: 1 }}>Save</Button>
+        <Button bsStyle="primary" onClick={() => { this.toggleSaveButton(); this.props.onClick(); }} style={{ position: 'absolute', zIndex: 1 }}>Save</Button>
       );
     }
     return null;
@@ -259,7 +259,7 @@ const SaveButton = React.createClass({
 
 });
 
-let subroute = '';
+const subroute = '';
 
 const Character = React.createClass(({
   getInitialState() { // Set in state when the page loads
@@ -301,7 +301,7 @@ const Character = React.createClass(({
     */
     this.syncCharacterSheetValues();
   },
-  
+
   componentDidUpdate() { // Is called after page updates in any way
     /*
     Right now the only thing that needs to happen after a character component is updated is load in data from state
@@ -311,20 +311,20 @@ const Character = React.createClass(({
   },
 
   syncCharacterSheetValues() {
-    if (this.props.params.subroute === 'load') { // Only need to do things if we mounted the component after loading a character
-      document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID; // Updates the page with the proper guid for the loaded sheet
-      const localStorageState = JSON.parse(localStorage.state); // Make a copy of the local storage state since you can't directly edit it as an object only as a string
-      if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
-        const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
-        Object.keys(stateFilledCharacterData).forEach((data) => { // For every property in the character data
+    // if (this.props.params.subroute === 'load') { // Only need to do things if we mounted the component after loading a character
+    // document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID; // Updates the page with the proper guid for the loaded sheet
+    const localStorageState = JSON.parse(localStorage.state); // Make a copy of the local storage state since you can't directly edit it as an object only as a string
+    if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
+      const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
+      Object.keys(stateFilledCharacterData).forEach((data) => { // For every property in the character data
           // Set our fields in the character sheet to match the data stored in local storage for that character
-          document.getElementById(this.reportPropName(stateFilledCharacterData, stateFilledCharacterData[data])).value = stateFilledCharacterData[data];
-        });
-      }
+        document.getElementById(this.reportPropName(stateFilledCharacterData, stateFilledCharacterData[data])).value = stateFilledCharacterData[data];
+      });
     }
-    if (hasBeenSaved) { // Only if a user has saved the first time does the condition pass
-      this.syncState('reactState'); // Updates localStorage state by what reactState thinks is correct
-    }
+    // }
+    // if (hasBeenSaved) { // Only if a user has saved the first time does the condition pass
+    this.syncState('reactState'); // Updates localStorage state by what reactState thinks is correct
+    // }
   },
 
   reportPropName(object, propertyValue) {
@@ -392,9 +392,9 @@ const Character = React.createClass(({
     const newData = { [characterSheetGUID]: { characterData: { [e.target.id]: e.target.value } } }; // Sets the data in a format that matches with state and localstorage.state
     newData[characterSheetGUID].characterData = this.combineObjects(this.state[characterSheetGUID].characterData, newData[characterSheetGUID].characterData);// matches the properties in our master state with our new state
     this.setState(this.combineObjects(this.state, newData));// Updates react's state with a combined version of the original state and our new data
-    if (hasBeenSaved) { // Only if a user has saved the first time does the condition pass
-      this.syncState('reactState'); // Updates localStorage state by what reactState thinks is correct
-    }
+    // if (hasBeenSaved) { // Only if a user has saved the first time does the condition pass
+    //   this.syncState('reactState'); // Updates localStorage state by what reactState thinks is correct
+    // }
   },
 
   // The default character sheet with one field to set if it is passed a GUID to set into the character sheet wrapper ID
@@ -743,8 +743,8 @@ const Character = React.createClass(({
   //   );
   // },
   render() { // Render function determined by what the subroute is
-    //subroute = this.props.params.subroute;
-    //return (this.renderContent());
+    // subroute = this.props.params.subroute;
+    // return (this.renderContent());
     return null;
   },
 }));

@@ -9,7 +9,6 @@ const AddCharacterComponent = require('./components/character/AddCharacter.jsx')
 const EditCharacterComponent = require('./components/character/EditCharacter.jsx');
 
 
-
 require('./stylesheets/styles.scss');
 
 const NoMatch = React.createClass(({// Basically our 404 page
@@ -73,8 +72,7 @@ ReactDOM.render((
     <Route path="characters" component={CharacterListComponent} />
     <Route path="characters/new" component={AddCharacterComponent} />
     <Route path="characters/load" component={EditCharacterComponent} />
-
-    {/*<Route path="characters/:subroute" component={CharacterComponent} />
+    {/* <Route path="characters/:subroute" component={CharacterComponent} />
     <Route path="characters/:subroute/:guid" component={CharacterComponent} />*/}
     <Route path="*" component={NoMatch} />
   </Router>
