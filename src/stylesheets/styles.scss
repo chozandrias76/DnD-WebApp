@@ -17,6 +17,16 @@ h1 {
   text-align: center;
 }
 
+.save-alert{
+  position: absolute;
+  z-index: 1;
+}
+
+.character-grid{
+  padding: 50px;
+  width: 100%;
+}
+
 .character-form-description {
   float: right;
 }

@@ -40,12 +40,7 @@ const CharacterListComponent = React.createClass({
             // No matter what the contents of local storage is, render a header for the table
     return (
       <div>
-        <Grid
-          style={{
-            padding: '50px',
-            width: '100%',
-          }}
-        >
+        <Grid className="character-grid">
           <h1>Character List</h1>
           {/* The table just has a header with character name and level to start*/}
           <Row>

@@ -15,7 +15,9 @@ const { browserHistory } = require('react-router');
 
 const CharacterComponent = require('./character.jsx');
 
-
+function syncCharacterSheetValues(){
+  AddCharacterComponent.syncCharacterSheetValues();
+}
 const CharacterSheetTextFieldComponent = React.createClass({
   handleChangingCharacterSheetElement(e) {
     this.props.onChange(e);
@@ -116,7 +118,7 @@ const SaveAlert = React.createClass({
   render() {
     if (this.state.documentData.showSaveAlert) {
       return (
-        <Alert bsStyle="info" onDismiss={this.handleAlertDismiss} style={{ position: 'absolute', zIndex: 1 }}>
+        <Alert bsStyle="info" onDismiss={this.handleAlertDismiss} className="save-alert" >
           <h4>You will only see this warning once</h4>
           <p>You need to click the save button every time you want to make changes</p>
           <p>
@@ -152,15 +154,14 @@ const SaveButton = React.createClass({
     //   }
     // }
   },
-  handleSaveClick(){
+  handleSaveClick() {
     if (typeof this.props.onClick === 'function') {
       this.props.onClick();
-    }
-    else console.log(this.props);
+    } else console.log(this.props);
   },
   render() {
     return (// Route is not set up on this page so <Links> and <a href> don't work with react-router
-      <Button bsStyle="primary" onClick={this.handleSaveClick} style={{ position: 'absolute', zIndex: 1 }}>Save</Button>
+      <Button bsStyle="primary" onClick={this.handleSaveClick} className="save-alert" >Save</Button>
       );
   },
 
@@ -177,6 +178,7 @@ const AddCharacterComponent = React.createClass({
   },
 
   componentWillMount() { // Called when a react component is about to mount
+
     let initialData = {};
 
     initialData = this.gUIDGenerator();
@@ -187,7 +189,10 @@ const AddCharacterComponent = React.createClass({
       },
     };
     this.setState(newState);
-    //this.syncState('reactState');
+    if (!Object.prototype.hasOwnProperty(localStorage, 'state')) {
+      console.log(localStorage);
+      //localStorage.state = '{}';
+    } 
   },
 
   componentDidMount() { // Is called after the react component did mount
@@ -212,8 +217,9 @@ const AddCharacterComponent = React.createClass({
     // if (this.props.params.subroute === 'load') { // Only need to do things if we mounted the component after loading a character
     // document.getElementsByName('character-sheet-wrapper')[0].id = currentCharacterGUID; // Updates the page with the proper guid for the loaded sheet
     const localStorageState = JSON.parse(localStorage.state); // Make a copy of the local storage state since you can't directly edit it as an object only as a string
-    if (Object.prototype.hasOwnProperty.call(localStorageState, this.props.location.query.guid)) { // If there is a property that matches a GUID provided
-      const stateFilledCharacterData = localStorageState[this.props.location.query.guid].characterData; // Set a copy of the character data in state
+     //console.log(Object.keys(this.state));
+    if (Object.prototype.hasOwnProperty.call(localStorageState, Object.keys(this.state)[0])) { // If there is a property that matches a GUID provided
+      const stateFilledCharacterData = localStorageState[Object.keys(this.state)[0]].characterData; // Set a copy of the character data in state
       Object.keys(stateFilledCharacterData).forEach((data) => { // For every property in the character data
           // Set our fields in the character sheet to match the data stored in local storage for that character
         document.getElementById(this.reportPropName(stateFilledCharacterData, stateFilledCharacterData[data])).value = stateFilledCharacterData[data];
@@ -273,10 +279,11 @@ const AddCharacterComponent = React.createClass({
   },
   handleSaveClick() {
     this.saveCharacterSheet();
+    browserHistory.push({ pathname: 'characters/load', query: { guid: encodeURI(Object.keys(this.state)[0]) } });
   },
   handleChangingCharacterSheetElement(e) {
-    console.log(this.state)
-    const characterSheetGUID = document.getElementsByName('character-sheet-wrapper')[0].id; // Sets the ID stored in our react element to the element ID of our root div
+    // console.log(this.state)
+    const characterSheetGUID = Object.keys(this.state)[0]; // Sets the ID stored in our react state propname to the element ID of our root div
     const newData = { [characterSheetGUID]: { characterData: { [e.target.id]: e.target.value } } }; // Sets the data in a format that matches with state and localstorage.state
     newData[characterSheetGUID].characterData = this.combineObjects(this.state[characterSheetGUID].characterData, newData[characterSheetGUID].characterData);// matches the properties in our master state with our new state
     this.setState(this.combineObjects(this.state, newData));// Updates react's state with a combined version of the original state and our new data
@@ -289,12 +296,7 @@ const AddCharacterComponent = React.createClass({
     return (
       <div name="character-sheet-wrapper" id="{currentCharacterGUID}">
         <SaveAlert />
-        <Grid
-          style={{
-            padding: '50px',
-            width: '100%',
-          }}
-        >
+        <Grid className="character-grid">
           <h1>Create Character</h1>
           <Form horizontal id="character-sheet-body" >
             {/* Name entry field and label*/}
